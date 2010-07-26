@@ -1,0 +1,23 @@
+<project name="Core Service">
+	<bannerLeft>
+		<name>Core Service</name>
+		<src>logo.gif</src>
+		<href>www.coreinformationsolutions.com</href>
+	</bannerLeft>
+	
+	<body>
+		<links>
+			<item name="Core Information Solutions LLC" href="http://www.coreinformationsolutions.com"/>
+		</links>
+
+		<menu name="Core Service">
+			<item name="Overview" href="index.html"/>
+			<item name="How It Works" href="how-it-works.html"/>
+			<item name="Dependencies" href="dependencies.html"/>
+		</menu>
+
+		<menu name="Dependencies">
+			<item name="Core Tooling" href="http://www.coreinformationsolutions.com/core-tooling"/>
+		</menu>
+	</body>
+</project>

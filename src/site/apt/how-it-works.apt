@@ -1,0 +1,151 @@
+How It Works
+
+* 1. Download
+
+	TODO
+
+* 2. Building
+
+	TODO
+
+* 3. Usage Within Core CommonApp Framework
+
+	Before discussing the insides of the Service Framework, its probably easier to understand the usage by seeing it in action with in the CommonApp Framework.
+	
+	The RoldoexDemo which demonstrates Core ETL was also built on the CommonApp Framework to avoid having to build a data model, DAOs and services to create contact information.  Which is exactly why the CommonApp Framework was created.  
+
+	In the CommonApp Framework the InformationContext object is used to create services, it pulls together Spring's ApplicationContext and the Service Framework's ServiceFactory.  The InformationCotext is not a singletone incase you need to create multiple instances within one jvm.  However, in most cases you only need one instance.  The Rolodex Demo creates a static instance in RolodexMain and provides a public getter for other classes to access the instance.
+	
+-------------------------------------------------------
+public class RolodexMain 
+{
+    private static InformationContext context;
+    
+    ...
+    
+    public static void main(String args[]) 
+    {
+        context = new InformationContext(
+            new ClassPathXmlApplicationContext("rolodex-server-context.xml")
+        );
+
+		...        
+    }
+
+	...
+	    
+    public static InformationContext getContext()
+    {
+        return context;
+    }
+    
+}
+-------------------------------------------------------
+
+	The InformationContext loads a number of spring context xml files that are in the commonApp-server project.  If you wish to expand on the InformationContext and provide more data models, DAOs or services you'll need to use the constructor as seen above to include your context configuration.  By default the CommonApp Framwork will use a database named 'core', if you wish to override that you'll need to provide your own in any case.  This is discussed more in the CommonApp Framework documentation.
+	
+	If you look at the rolodex-server-context.xml you'll see it sets up its own data soruce for the rolodex database.  Along with including the common app context files, it includes, 'rolodex-context.xml', which contains objects specific to this application.   
+		
+-------------------------------------------------------
+<import resource="commonapp-data-context.xml"/>
+<import resource="commonapp-model-context.xml"/>
+<!--  import resource="commonapp-hibernate-mappings-context.xml"/ -->
+<import resource="commonapp-dao-context.xml"/>
+<import resource="commonapp-service-context.xml"/>
+<import resource="rolodex-context.xml"/>
+-------------------------------------------------------
+
+	The service we will look at is defined as seen below in the rolodex-context.xml.  The bean name is important and will match up with the @InformationBean annotation on the interface.
+
+-------------------------------------------------------
+	<!-- Service -->
+	<bean id="rolodexSetupService"
+		class="core.demo.rolodex.server.service.RolodexSetupServiceImpl" />
+-------------------------------------------------------
+	
+	Now you see how to expand on the CommonApp Framework, which is discussed in more detail in the CommonApp Framework documentation.
+
+	Here is a service we have created to initialize the rolodex application.  All services must have an interface and the @Service annotation on the interface declaration as required by the Service Framework.  The @InformationBean annotation is used by the CommonAppServiceInstantiator which is specific to the usage of the Service Framework within the CommonApp Framework.  The @InformationBean annotation requires the beanName be defined in the spring context.  This implementation of the ServiceInstantiator can be changed if you wish not to use the CommonApp Framework. 	
+	
+-------------------------------------------------------
+@InformationBean(beanName="rolodexSetupService")
+@Service
+public interface RolodexSetupService
+{
+
+    public ServiceResult<SetupConfiguration> getSetupInformation();
+
+    public ServiceResult<SetupConfiguration> createSetupConfiguration(SetupConfiguration setupConfiguration);
+    
+    public String generateUsername(SetupConfiguration setupConfiguration);
+    
+    public String generatePassword();
+    
+    
+}
+-------------------------------------------------------
+
+	Here is a snippet from the RolodexFrame.doNewContact() method.  Here we show how simple it is to invoke a service regardless of where and how the process works.	
+	
+-------------------------------------------------------
+ContactPersonService contactPersonService = (ContactPersonService) RolodexMain.getContext().createService(ContactPersonService.class);
+contactPersonService.createContactPerson(newContact, null, null, null, RolodexMain.getUserLogin());
+-------------------------------------------------------
+	
+	When using the Service Framework within the CommonApp Framework is simple to create services for your application.  
+	
+	[[1]] Configure your spring context xml files and create an instance of the InformtionContext
+	[[2]] Create an interface for your service with the @Servie and @InformationBean annotations
+	[[3]] Create and instance of the service through the InformationContext and invoke a method.
+
+* 4. Inside The Framework
+
+	There are some interfaces within the api that are important to understand.  This framework was written to support the Core CommonApp Framework and there is little that can demonstrate its usage outside of the CommonApp Framework.  However, here we will look at the pieces within the Service Framework and should give you some insight if you wish to use the Service Framework outside of the CommonApp Framework.  
+	
+	Below are the interfaces worth noting and the the spring configuration for the Core Service Framework.  
+	
+	<<Service Executor>> is used on the client side to determine how the service will be executed.  The two implementations available now are the LocalServiceExecutor and the RemoteServiceExecutor.  The LocalServiceExecutor will invoke the service within the same jvm.  The RemoteServiceExecutor is able to invoke the service across a socket connection on another machine.  When using the RemoteServiceExectutor the LocalServiceExecutor will be used on the remote machine to execute the service.  In both cases if an exception is thrown during the service execution the exception will be serialized and thrown on the local machine. 
+	
+	<<Service Instantiator>> is the class that will instantiate the service implementation when the service is invoked.  This is used by the LocalServiceExecutor, in the case of the RemoteServicExecutor this will occur on the remote side.  The CommonAppServiceInstantiator uses the InformationBean annotation to get the spring bean name, then uses InformationContext to create an instance of the service implementation configured in spring based on the beanName attribute.
+	
+	<<Service Bus>> is only used in the RemoteServiceExecutor.  Since a socket is involved we must manage the traffic.  The SimpleServiceBus will create a new socket connection for every service call, this may not have the desired performance when in high concurrency situations.  The DedicatedServiceBus will keep the socket connection open and manage the traffic between threads that are invoking the services.  
+
+	<<Service Security>> is just that, its implementation should determine if the service is has authorization to be invoked by the user or system.  The CommonAppServiceSecurity implementation uses the Security data model in the Core CommonApp Framework.
+	
+-------------------------------------------------------
+<bean id="serviceExecutor" class="core.service.executor.local.LocalServiceExecutor" />
+
+<bean id="serviceInstantiator" class="core.commonapp.server.service.CommonAppServiceInstantiator"/>
+
+<bean id="serviceBus" class="core.service.bus.SimpleServiceBus" scope="prototype"/>
+
+<bean id="serviceSecurity" class="core.commonapp.server.security.CommonAppServiceSecurity" />
+-------------------------------------------------------
+
+	These interfaces allow the Core Service Framework to be used outside of the CommonApp Framework.  It is not the role of the service framework to push any security model or means of instantiating and invoking services to the parties making use of the api. 
+
+	<NOTE: Since this framework has only had any real use in the Core CommonApp Framework there may be some rough edges that need to be smoothed out.>
+
+	The Core Service Framework requires all services to have an interface with all the method signatures you wish to invoke in the service.  The reason for this is we only want to deploy the interfaces to our client code and leave the implementation classes on the server side.  ServiceFactory.createSevice(...) returns a proxy object that will make use of the ServiceExecutor defined in spring to invoke the service.
+
+	To create a service use the ServicFactory and pass the interface class to the createService(...) method.  The rolodex demo uses the Common App Framework to create services through the InformationCotnext object.  The CommonApp Framework is outside the scope of this documentation, you can see the InformationContext object created in RolodexMain.main(...).  	 
+
+-------------------------------------------------------
+ServiceFactory factory = new ServiceFactory();
+ContactPersonService contactPersonService = (ContactPersonService) factory.createService(ContactPersonService.class);
+-------------------------------------------------------
+
+	If you have the interfaces discussed above defined in your spring configuration then you should have no problem invoking the service.  If you want to use the Core CommonApp Framework's implementations for invoking services its suggested you read the documentation on the Core CommonApp Framework.
+	
+	The only other thing to do is add the dependency, either the core-service*.jar to your projects classpath or if you are using maven add the dependency to your pom.xml.
+	
+-------------------------------------------------------
+<dependency>
+	<groupId>com.coreinformationsolutions</groupId>
+	<artifactId>core-commonapp-server</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+</dependency>
+-------------------------------------------------------
+
+	
+

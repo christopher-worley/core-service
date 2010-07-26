@@ -1,0 +1,29 @@
+package org.service.test
+
+import core.service.result.ServiceResult
+import core.service.test.mock.Application
+import core.service.test.mock.Applicant
+
+rule "Gun Licensee : Under 18"
+
+when
+	Applicant( age < 18 )
+  	$a : Application(type == Application.TYPE_GUN_LICENSEE)
+	$result : ServiceResult()
+then
+	$result.setErrorMessage("Applicant is not 18 years of age");
+	$a.setAccepted(false);
+	System.out.println("not 18");
+end
+
+rule "Driver Licensee : 16 or older"
+
+when
+	Applicant( age < 16 )
+  	$a : Application(type == Application.TYPE_DRIVER_LICENSEE)
+	$result : ServiceResult()
+then
+	$result.setErrorMessage("Applicant must be at elast 16 to get Driver licensee");
+	$a.setAccepted(false);
+	System.out.println("not 16");
+end

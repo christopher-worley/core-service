@@ -1,0 +1,12 @@
+<rule>
+  <name>validApplication</name>
+  <modelVersion>1.0</modelVersion>
+  <attributes/>
+  <metadataList/>
+  <lhs>
+    <freeForm>
+      <text>exists Application(type == Aplication.TYPE_GUN_LICENSEE)</text>
+    </freeForm>
+  </lhs>
+  <rhs/>
+</rule>

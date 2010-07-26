@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.coreinformationsolutions</groupId>
+	<artifactId>core-service</artifactId>
+	<packaging>jar</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>service</name>
+	<url>http://maven.apache.org</url>
+
+	<repositories>
+		<!-- Core Information Solutions LLC  -->
+		<repository>
+			<id>core-information-solutions</id>
+			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>core-information-solutions-snapshots</id>
+			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
+		<!--  JBoss Drools -->
+		<repository>
+			<id>jboss-drools</id>
+			<url>http://repository.jboss.com/maven2/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.coreinformationsolutions</groupId>
+			<artifactId>core-tooling</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.0.74</version>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-core</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-compiler</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-api</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>8.3-603.jdbc4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>2.5.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>2.5.6</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<distributionManagement>
+		<!-- Core Information Solutions LLC  -->
+		<repository>
+			<id>core-information-solutions_deploy</id>
+			<name>Core Information Solutions Repository</name>
+			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions/</url>
+			<layout>default</layout>
+			<uniqueVersion>false</uniqueVersion>
+		</repository>
+		<snapshotRepository>
+			<id>core-information-solutions_deploy</id>
+			<name>Core Information Solutions Repository</name>
+			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions-snapshots/</url>
+			<layout>default</layout>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+
+		<site>
+			<id>core-information-solutions_site</id>
+			<url>scp://www.coreinformationsolutions.com/home/core/public_html/core-service/</url>
+		</site>
+	</distributionManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+			<!--  Assembly -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2-beta-4</version>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly-project.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!--  surefire -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
