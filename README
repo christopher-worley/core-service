@@ -1,0 +1,13 @@
+Core Service Framework
+----------------------
+
+Author: Chris Worley
+Email: cworley420@gmail.com
+
+I find it always usefull to supply my own interface to services.  This project is a very thin interface that allows a central point of control.  Separating the client logic from the server logic, Core Service Framework removes boler plate code I have always found myself writting for every business application.  Some may say what I am doing can be done in many other ways; however, this is my solution.  This is how I have grown to love enterprise client / server application development.
+
+All sugestions are welcome.  Please download and use the documentation to learn this projects place in the the world of java enterprise development.
+
+
+
+Chris Worley
