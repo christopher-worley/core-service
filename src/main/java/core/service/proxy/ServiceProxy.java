@@ -37,6 +37,7 @@ import core.service.result.ServiceResult;
 import core.service.rule.RuleExecutor;
 import core.service.security.ServiceSecurity;
 import core.service.session.ClientServiceSession;
+import core.service.test.mock.ProcessApplicationService;
 import core.service.util.ServiceContextUtil;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
@@ -50,14 +51,6 @@ public class ServiceProxy implements InvocationHandler
 {
     /** logger for this class */
     private static final Logger logger = LogFactory.getLogger(ServiceProxy.class);
-    
-    /** decimal formatter for logging */
-    private DecimalFormat decimalFormat = new DecimalFormat("##0.0000");
-    
-    /** rule executor */
-    private RuleExecutor ruleExecutor = null;
-    
-    private ClientServiceSession session = null;
     
     /**
      * new instance
@@ -73,10 +66,27 @@ public class ServiceProxy implements InvocationHandler
                 new Class[] {serviceInterface}, 
                 new ServiceProxy(serviceInterface, session));
     }
+    
+    /**
+	 * @param serviceClass
+	 * @return
+	 */
+	public static Object newInstance(Class serviceClass)
+	{
+		return newInstance(serviceClass, null);
+	}
+    
+    /** decimal formatter for logging */
+    private DecimalFormat decimalFormat = new DecimalFormat("##0.0000");
+    
+    /** rule executor */
+    private RuleExecutor ruleExecutor = null;
 
+    private ClientServiceSession session = null;
+    
     /** service interface */
     private Class serviceInterface;
-    
+
     /**
      * Create service proxy to use the given executor 
      * when invoking services
@@ -92,6 +102,70 @@ public class ServiceProxy implements InvocationHandler
     }
 
     /**
+     * Invoke rules to validate parameters
+     */
+    private ServiceResult businessRulesValidation(Method method, Object[] args)
+    {
+        List<Object> objects = new ArrayList<Object>();
+        ApplyRules context = method.getAnnotation(ApplyRules.class);
+        
+        if (context != null)
+        {
+            objects.addAll(Arrays.asList(args));
+        }
+        else
+        {
+            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+            for (int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++)
+            {
+                for (int annotIndex = 0; annotIndex < parameterAnnotations[paramIndex].length; annotIndex++)
+                {
+                    if (parameterAnnotations[paramIndex][annotIndex] instanceof ApplyRules)
+                    {
+                        objects.add(args[paramIndex]);
+                    }
+                }
+            }
+        }
+
+        ServiceResult<?> result = new ServiceResult();
+        if (objects.size() > 0)
+        {
+            objects.add(result);
+            ruleExecutor.execute(objects);
+        }
+        return result;
+    }
+
+    /**
+     * Check security on service method for current user
+     * 
+     * @param method
+     * @param args
+     */
+    private void checkSecurity(Method method, Object[] args)
+    {
+        Security security = method.getAnnotation(Security.class);
+        if (security == null)
+        {
+            // no security defined
+            logger.debug("No security required for service (serviceInterface={0},method={1}).",
+                    serviceInterface.getName(),
+                    method.getName());
+            return;
+        }
+        
+        // check permissions
+        ServiceSecurity serviceSecurity = (ServiceSecurity) ServiceContextUtil.getApplicationContext().getBean("serviceSecurity");
+        logger.debug("Authenticating service request (session={0},serviceInterface={1},method={2},securityClass={3}).",
+        		session,
+                serviceInterface.getName(),
+                method.getName(),
+                serviceSecurity.getClass().getName());
+        serviceSecurity.authenticate(session, serviceInterface, method, args);
+    }
+
+	/**
      * Execute the service with the given executor.  
      *
      * If the service methods return type is <code>ServiceResult</code> then return
@@ -190,70 +264,6 @@ public class ServiceProxy implements InvocationHandler
                 + ",result.payload.class=" 
                 + result.getPayload().getClass().getName()
                 + ").");
-    }
-
-    /**
-     * Invoke rules to validate parameters
-     */
-    private ServiceResult businessRulesValidation(Method method, Object[] args)
-    {
-        List<Object> objects = new ArrayList<Object>();
-        ApplyRules context = method.getAnnotation(ApplyRules.class);
-        
-        if (context != null)
-        {
-            objects.addAll(Arrays.asList(args));
-        }
-        else
-        {
-            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-            for (int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++)
-            {
-                for (int annotIndex = 0; annotIndex < parameterAnnotations[paramIndex].length; annotIndex++)
-                {
-                    if (parameterAnnotations[paramIndex][annotIndex] instanceof ApplyRules)
-                    {
-                        objects.add(args[paramIndex]);
-                    }
-                }
-            }
-        }
-
-        ServiceResult<?> result = new ServiceResult();
-        if (objects.size() > 0)
-        {
-            objects.add(result);
-            ruleExecutor.execute(objects);
-        }
-        return result;
-    }
-
-    /**
-     * Check security on service method for current user
-     * 
-     * @param method
-     * @param args
-     */
-    private void checkSecurity(Method method, Object[] args)
-    {
-        Security security = method.getAnnotation(Security.class);
-        if (security == null)
-        {
-            // no security defined
-            logger.debug("No security required for service (serviceInterface={0},method={1}).",
-                    serviceInterface.getName(),
-                    method.getName());
-            return;
-        }
-        
-        // check permissions
-        ServiceSecurity serviceSecurity = (ServiceSecurity) ServiceContextUtil.getApplicationContext().getBean("serviceSecurity");
-        logger.debug("Authenticating service request (session={0},serviceInterface={1},method={2},securityClass={3}).",
-        		session,
-                serviceInterface.getName(),
-                method.getName(),
-                serviceSecurity.getClass().getName());
-        serviceSecurity.authenticate(session, serviceInterface, method, args);
     }
 
 }

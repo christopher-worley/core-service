@@ -8,7 +8,40 @@ How It Works
 
 	TODO
 
-* 3. Usage Within Core CommonApp Framework
+* 3. Concepts and Key Components
+
+    Session
+    
+
+    The optional session management for service calls is available to avoid having to pass security credentials in the service method parameters.  Two things come in to play when using the session management.  
+
+One:
+
+Get the session factory from the sprint application context.  If spring is not being used then instantiate your selected ClientServiceSessionFactory in any fasion.
+
+     	ClientServiceSessionFactory sessionFactory = (ClientServiceSessionFactory) context.getBean("clientServiceSessionFactory");
+
+Any service you wish to invoke that require authorization or authentication create the service from the  ClientServiceSessionFactory instantiate that was created.  Using this instead of the ServiceFactory is the additional session information available in the ServiceProxy.
+
+Next we need to get a session from the <code>sessionFactory</code> instantiated above.  Before doing so need to decide if we need authorization or authentication.  If so then create a SecurityEntity that will contain the credentials.
+
+    	SecurityEntity joeEntity = new MockSecurityEntity("joe.blow", new String[] {MockPermission.ADD});
+
+The implementation may depend on the work you are doing.  In this case it is an implementation used in unit testing.
+
+Now we can create the session from the factory class.  When calling createSession(...) the ServiceEntity is passed to it.  This allows the ClientServiceSession manage all it needs to with the security credentials.
+    	
+    	logger.info("*** Invoking Service With 'joe' Session, NO PERMISSION ***");
+    	ClientServiceSession joeSession = sessionFactory.createSession(joeEntity);
+
+Last create service from session and invoke a method.  Creating the service from the session instead of the ServiceFactory allows the Session to populate the service with information on the SecurityEntity.
+
+    	MathService joeMathService = (MathService) joeSession.createService(MathService.class);
+    	Integer twoMinusTwo = joeMathService.subtract(2, 2);
+
+To recap, it gets old having to always pass user login information to services.  It takes up  at least one parameter, or more, in every service method.  Creating a Session for the user allows this information to be handled by the ServiceProxy instead of the developer concerning themselves with it for every service written.
+  
+* 4. Usage Within Core CommonApp Framework
 
 	Before discussing the insides of the Service Framework, its probably easier to understand the usage by seeing it in action with in the CommonApp Framework.
 	

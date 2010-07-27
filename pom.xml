@@ -8,29 +8,8 @@
 	<name>service</name>
 	<url>http://maven.apache.org</url>
 
-	<repositories>
-		<!-- Core Information Solutions LLC  -->
-		<repository>
-			<id>core-information-solutions</id>
-			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>core-information-solutions-snapshots</id>
-			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
 
+	<repositories>
 		<!--  JBoss Drools -->
 		<repository>
 			<id>jboss-drools</id>
@@ -94,29 +73,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<distributionManagement>
-		<!-- Core Information Solutions LLC  -->
-		<repository>
-			<id>core-information-solutions_deploy</id>
-			<name>Core Information Solutions Repository</name>
-			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions/</url>
-			<layout>default</layout>
-			<uniqueVersion>false</uniqueVersion>
-		</repository>
-		<snapshotRepository>
-			<id>core-information-solutions_deploy</id>
-			<name>Core Information Solutions Repository</name>
-			<url>http://localhost:8081/nexus/content/repositories/coreinformationsolutions-snapshots/</url>
-			<layout>default</layout>
-			<uniqueVersion>false</uniqueVersion>
-		</snapshotRepository>
-
-		<site>
-			<id>core-information-solutions_site</id>
-			<url>scp://www.coreinformationsolutions.com/home/core/public_html/core-service/</url>
-		</site>
-	</distributionManagement>
 
 	<build>
 		<plugins>
