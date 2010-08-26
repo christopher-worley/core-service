@@ -7,9 +7,11 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.PARAMETER,ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Required 
+public @interface Validate
 {
 
     String message() default "";
     
+    Class<?> validationClass() default DefaultAnnotationValidator.class;
+
 }

@@ -19,13 +19,24 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import core.service.validation.Max;
+import core.service.validation.Min;
+import core.service.validation.StringValidation;
+
 public class Applicant
 {
     
+	@StringValidation(allowEmpty=false, maxSize=30)
     private String firstName;
     
+	@StringValidation(allowEmpty=false, maxSize=60)
     private String lastName;
     
+    @StringValidation(allowNull=true, maxSize=1)
+    private String middleInitial;
+    
+    @Min(value=1)
+    @Max(value=110)
     private Integer age;
 
     
