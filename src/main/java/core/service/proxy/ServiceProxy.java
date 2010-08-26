@@ -37,8 +37,9 @@ import core.service.result.ServiceResult;
 import core.service.rule.RuleExecutor;
 import core.service.security.ServiceSecurity;
 import core.service.session.ClientServiceSession;
-import core.service.test.mock.ProcessApplicationService;
 import core.service.util.ServiceContextUtil;
+import core.service.validation.ServiceValidationException;
+import core.service.validation.ValidationExecutor;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -51,6 +52,15 @@ public class ServiceProxy implements InvocationHandler
 {
     /** logger for this class */
     private static final Logger logger = LogFactory.getLogger(ServiceProxy.class);
+    
+    /**
+	 * @param serviceClass
+	 * @return
+	 */
+	public static Object newInstance(Class serviceClass)
+	{
+		return newInstance(serviceClass, null);
+	}
     
     /**
      * new instance
@@ -66,15 +76,6 @@ public class ServiceProxy implements InvocationHandler
                 new Class[] {serviceInterface}, 
                 new ServiceProxy(serviceInterface, session));
     }
-    
-    /**
-	 * @param serviceClass
-	 * @return
-	 */
-	public static Object newInstance(Class serviceClass)
-	{
-		return newInstance(serviceClass, null);
-	}
     
     /** decimal formatter for logging */
     private DecimalFormat decimalFormat = new DecimalFormat("##0.0000");
@@ -166,6 +167,15 @@ public class ServiceProxy implements InvocationHandler
     }
 
 	/**
+	 * @param method
+	 * @param args
+	 */
+	private void checkValidation(Method method, Object[] args) {
+		ValidationExecutor validationExecutoin = new ValidationExecutor(args);
+		
+	}
+
+	/**
      * Execute the service with the given executor.  
      *
      * If the service methods return type is <code>ServiceResult</code> then return
@@ -184,6 +194,17 @@ public class ServiceProxy implements InvocationHandler
     {
         // track time
         long startTime = System.currentTimeMillis();
+        
+        // validation
+        Exception validationException = null;
+        try 
+        {
+        	checkValidation(method, args);
+        }
+        catch (ServiceValidationException e) 
+        {
+        	validationException = e;
+        }
 
         // security check
         Exception securityException = null;

@@ -10,37 +10,80 @@ How It Works
 
 * 3. Concepts and Key Components
 
-    Session
+** 3.1    Session
     
+    The optional session management is available to avoid having to pass security credentials in the service method parameters.  Most enterprise applications will require a session to hande the permissions.  A few things come in to play when using the session management.  Take a look below and see lines of code necessary to make use of the session info.  
 
-    The optional session management for service calls is available to avoid having to pass security credentials in the service method parameters.  Two things come in to play when using the session management.  
+    Get the session factory from the spring application context.  If spring is not being used then instantiate your selected ClientServiceSessionFactory in any fasion.
 
-One:
+---------
+ClientServiceSessionFactory sessionFactory = (ClientServiceSessionFactory) context.getBean("clientServiceSessionFactory");
+---------
 
-Get the session factory from the sprint application context.  If spring is not being used then instantiate your selected ClientServiceSessionFactory in any fasion.
+    Next we need to get a session from the <code>sessionFactory</code> instantiated above.  Before doing so need to decide if we need authorization or authentication.  If so then create a SecurityEntity that will contain the credentials.
 
-     	ClientServiceSessionFactory sessionFactory = (ClientServiceSessionFactory) context.getBean("clientServiceSessionFactory");
+-------
+SecurityEntity joeEntity = new MockSecurityEntity("joe.blow", new String[] {MockPermission.ADD});
+--------
 
-Any service you wish to invoke that require authorization or authentication create the service from the  ClientServiceSessionFactory instantiate that was created.  Using this instead of the ServiceFactory is the additional session information available in the ServiceProxy.
+    The implementation may depend on the work you are doing.  In this case it is an implementation used in unit testing.
 
-Next we need to get a session from the <code>sessionFactory</code> instantiated above.  Before doing so need to decide if we need authorization or authentication.  If so then create a SecurityEntity that will contain the credentials.
+    Now we can create the session from the factory class.  When calling createSession(...) the ServiceEntity is passed to it.  This allows the ClientServiceSession manage all it needs to with the security credentials.
+    
+--------	
+logger.info("*** Invoking Service With 'joe' Session, NO PERMISSION ***");
+ClientServiceSession joeSession = sessionFactory.createSession(joeEntity);
+--------	
 
-    	SecurityEntity joeEntity = new MockSecurityEntity("joe.blow", new String[] {MockPermission.ADD});
+    Last create service from session and invoke a method.  Creating the service from the session instead of the ServiceFactory allows the Session to populate the service with information on the SecurityEntity.
+ 
+--------	
+MathService joeMathService = (MathService) joeSession.createService(MathService.class);
+Integer twoMinusTwo = joeMathService.subtract(2, 2);
+--------	
 
-The implementation may depend on the work you are doing.  In this case it is an implementation used in unit testing.
+    In summary it gets old having to always pass user login information to services.  It takes up  at least one parameter, or more, in every service method.  Creating a Session for the user allows this information to be handled by the ServiceProxy instead of the developer concerning themselves with it for every service written.
 
-Now we can create the session from the factory class.  When calling createSession(...) the ServiceEntity is passed to it.  This allows the ClientServiceSession manage all it needs to with the security credentials.
-    	
-    	logger.info("*** Invoking Service With 'joe' Session, NO PERMISSION ***");
-    	ClientServiceSession joeSession = sessionFactory.createSession(joeEntity);
+** 3.2 Service Factory
 
-Last create service from session and invoke a method.  Creating the service from the session instead of the ServiceFactory allows the Session to populate the service with information on the SecurityEntity.
+    If no session is required for the work being done.  The ServiceFactory can be used directly.  Depending on your situation the service factory may get instantiated in different ways.
 
-    	MathService joeMathService = (MathService) joeSession.createService(MathService.class);
-    	Integer twoMinusTwo = joeMathService.subtract(2, 2);
+--------
+ServiceFactory serviceFactory = (ServiceFactory) context.getBean("serviceFactory");
+--------
 
-To recap, it gets old having to always pass user login information to services.  It takes up  at least one parameter, or more, in every service method.  Creating a Session for the user allows this information to be handled by the ServiceProxy instead of the developer concerning themselves with it for every service written.
-  
+    After creating the service factory we simply request the service factory creates the service.
+
+-------
+MathService mathService = (MathService) serviceFactory.createService(MathService.class);
+-------
+
+   The ServiceFactory is the simplest way to create services.  However, in most enterprise situations a session is required for security.
+
+** 3.3 Proxy
+
+    The power of the service framework shows in the ServiceProxy.  The control over execution of the service method is centralized in the proxy.  It is worth taking some time to scan through the source of ServiceProxy.  Havind an understandind of this class will give some insight on many of the subjects discussed in this section of the documentation.
+
+** 3.4. Rules
+
+    The ServiceProxy will invoke the service rules if the @ApplyRules annotation on the service method.
+
+    <<TODO: Document how rules are executed>>
+
+** 3.5 Validation
+
+    Annotations are available to provide validation rules for service method parameters and class fields.  For any classes given as a parameter for a service method, the fields of that class will be checked for validation annotations.
+
+    These annotations help avoid validation code in each service.  Similar to authentication code, the validation code can become brittle over time and changes.
+
+** 3.6 Executor
+
+    <<TODO: Document the executors>>
+
+** 3.7 Service Bus
+
+    The ServiceBus allows for a pipline in the process of invoking a service.  This pipline can be responbile for communicating to another jvm on a different server the service class, method and paramters.  Some process on the remote jvm will accept this information from the bus, invoke the service and return the result.
+
 * 4. Usage Within Core CommonApp Framework
 
 	Before discussing the insides of the Service Framework, its probably easier to understand the usage by seeing it in action with in the CommonApp Framework.
