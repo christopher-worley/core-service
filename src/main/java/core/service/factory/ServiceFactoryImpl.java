@@ -12,6 +12,11 @@ public class ServiceFactoryImpl implements ServiceFactory
 
 	private ClientServiceSession session;
 
+	public ServiceFactoryImpl()
+	{
+		this(null);
+	}
+
 	public ServiceFactoryImpl(ClientServiceSession session)
 	{
 		super();

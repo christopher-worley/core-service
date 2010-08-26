@@ -17,8 +17,23 @@ public class ServiceSecurityImpl implements ServiceSecurity
         {
             throw new IllegalStateException("Failed to find Security annotation on service method.");
         }
+        if (session == null) 
+        {
+            throw new ServiceSecurityException("Cannot invoke service, no security entity available (requiredPermission="
+                    + security.permissionKey()
+                    + ").");
+        }
+        if (session.getSecurityEntity() == null) 
+        {
+            throw new ServiceSecurityException("Cannot invoke service, no session available (entity="
+                    + session.getSecurityEntity()
+                    + ",requiredPermission="
+                    + security.permissionKey()
+                    + ").");
+        }
 		
-        if (session.getSecurityEntity().getPermissionIds() != null) {
+        if (session.getSecurityEntity().getPermissionIds() != null) 
+        {
         	String[] permissions = session.getSecurityEntity().getPermissionIds();
         	for (int index = 0; index < permissions.length; index++) 
         	{

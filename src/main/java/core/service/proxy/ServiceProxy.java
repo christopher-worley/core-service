@@ -208,18 +208,21 @@ public class ServiceProxy implements InvocationHandler
 
         // security check
         Exception securityException = null;
-        try
+        if (session != null) 
         {
-            checkSecurity(method, args);
-        }
-        catch (ServiceSecurityException e)
-        {
-            securityException = e;
-        }
-        catch (Exception e)
-        {
-            logger.error("An unexpected exception occured while authenticating service: {0}.", e.getMessage(), e);
-            securityException = e;
+            try
+            {
+                checkSecurity(method, args);
+            }
+            catch (ServiceSecurityException e)
+            {
+                securityException = e;
+            }
+            catch (Exception e)
+            {
+                logger.error("An unexpected exception occured while authenticating service: {0}.", e.getMessage(), e);
+                throw new ServiceException("An unexpected exception occured while authenticating service.", e);
+            }
         }
         
         // business rules validation, if result response type is error then return the result 

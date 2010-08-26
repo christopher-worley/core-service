@@ -13,43 +13,20 @@
 						   http://www.springframework.org/schema/util 
 						   http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 						   
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-	    <property name="driverClassName" value="org.postgresql.Driver"/>
-	    <property name="url" value="jdbc:postgresql://10.114.1.252/proxeee"/>
-	    <property name="username" value="proxeee"/>
-	    <property name="password" value="proxeeepass"/>
-	</bean>
 
-	<!-- Hibernate SessionFactory - ->
-	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
-				<!- - prop key="hibernate.hbm2ddl.auto">update</prop - ->
-				<prop key="hibernate.connection.autocommit">false</prop>
-			</props>
-		</property>
-		<property name="annotatedClasses" ref="mappingClasses" />
-	</bean>
+	<bean id="serviceFactory" class="core.service.factory.ServiceFactoryImpl" scope="prototype"/>
 	
-	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
-        <property name="sessionFactory" ref="sessionFactory" />
-    </bean>
+	<bean id="clientServiceSessionFactory" class="core.service.session.ClientServiceSessionFactoryImpl" scope="prototype"/>
 	
-	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory" />
-	</bean>
+	<bean id="clientServiceSession" class="core.service.session.ClientServiceSessionImpl" scope="prototype"/>
 
-	<tx:annotation-driven/>
-	-->
+	<bean id="serviceSecurity" class="core.service.security.ServiceSecurityImpl"/>
 
-	<bean id="serviceExecutor" class="core.service.executor.local.LocalServiceExecutor" />
+	<bean id="serviceExecutor" class="core.service.executor.local.LocalServiceExecutor" scope="prototype"/>
 
-	<bean id="serviceInstantiator" class="core.commonapp.server.service.CommonAppServiceInstantiator"/>
-	
-	<bean id="serviceBus" class="core.service.bus.SimpleServiceBus" scope="prototype"/>
-	
-	<bean id="serviceSecurity" class="core.commonapp.server.security.CommonAppServiceSecurity" />
+	<bean id="serviceInstantiator" class="core.service.test.mock.MockServiceFactory" scope="prototype"/>
+
+	<bean id="serviceBus" class="core.service.bus.socket.DedicatedServiceBus" scope="prototype"/>
+	<!--bean id="serviceBus" class="core.service.bus.socket.SimpleServiceBus" scope="prototype"/-->
 
 </beans>
