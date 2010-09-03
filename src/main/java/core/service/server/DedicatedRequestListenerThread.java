@@ -124,7 +124,7 @@ public class DedicatedRequestListenerThread extends Thread implements Runnable
         SocketWrapper sendSocket = manager.getSocket(sendConnectionId);
         logger.debug("Adding service request to the ServiceRequestQueue (connectionId={0}).", 
                receiveSocket.getConnectionId());
-        queue.add(new ServiceRequest(receiveSocket, sendSocket));
+        queue.add(new SocketServiceRequest(receiveSocket, sendSocket));
     }
     
 

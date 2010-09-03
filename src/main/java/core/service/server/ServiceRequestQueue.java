@@ -58,9 +58,9 @@ public class ServiceRequestQueue
      */
     private class ProcessorThread extends Thread
     {
-        private ServiceRequest request;
+        private SocketServiceRequest request;
         
-        public ProcessorThread(ServiceRequest request)
+        public ProcessorThread(SocketServiceRequest request)
         {
             super();
             this.request = request;
@@ -154,7 +154,7 @@ public class ServiceRequestQueue
      * 
      * @param serviceRequest
      */
-    public void add(ServiceRequest serviceRequest)
+    public void add(SocketServiceRequest serviceRequest)
     {
         invokerPool.submit(new ProcessorThread(serviceRequest));
     }

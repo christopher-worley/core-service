@@ -37,12 +37,12 @@ public class InvokeServiceThread implements Runnable
     private static final Logger logger = LogFactory.getLogger(InvokeServiceThread.class);
     
     /** service request to invoke */
-    private ServiceRequest request;
+    private SocketServiceRequest request;
 
     /**
      * @param request
      */
-    public InvokeServiceThread(ServiceRequest request)
+    public InvokeServiceThread(SocketServiceRequest request)
     {
         this.request = request;
     }

@@ -25,29 +25,32 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import core.service.executor.local.LocalServiceExecutor;
 import core.service.result.ServiceResult;
 import core.service.test.mock.MathService;
-import core.tooling.property.SystemPropertyFileReader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/test-core-service-context.xml")
 public class TestLocalServiceExecutor
 {
+	
+	@Autowired
+	private ApplicationContext context;
 
     @Before
     public void setup()
     {
-        new SystemPropertyFileReader("test-service.properties");
     }
     
     @Test
     public void testDoExecute() throws SecurityException, NoSuchMethodException 
     {
-        LocalServiceExecutor executor = new LocalServiceExecutor();
+        LocalServiceExecutor executor = new LocalServiceExecutor(context);
         
         Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);
         

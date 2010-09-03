@@ -154,7 +154,7 @@ public class ServiceInvokerServer extends Thread
         if (intention.equals(ServiceBusDefs.SENDING_CLIENT_REQUEST))
         {
             logger.debug("Adding new service request to queue (connectionId={0}).", connectionId);
-            queue.add(new ServiceRequest(socketWrapper));
+            queue.add(new SocketServiceRequest(socketWrapper));
         }
         else
         {

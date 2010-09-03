@@ -24,6 +24,8 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -35,6 +37,8 @@ import core.tooling.property.SystemPropertyFileReader;
 @ContextConfiguration(locations="/test-core-service-context.xml")
 public class TestServiceProxy
 {
+	@Autowired
+	private ApplicationContext context;
     
     @Before
     public void setup()
@@ -46,7 +50,7 @@ public class TestServiceProxy
     public void testInvoke() 
     {
 
-        MathService proxy = (MathService) ServiceProxy.newInstance(MathService.class);
+        MathService proxy = (MathService) ServiceProxy.newInstance(MathService.class, context);
         Integer sum = proxy.add(2, 2);
         
         Assert.assertEquals(new Integer(4), sum);

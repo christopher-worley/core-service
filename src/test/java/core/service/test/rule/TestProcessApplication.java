@@ -68,7 +68,7 @@ public class TestProcessApplication implements ApplicationContextAware
     @Test
     public void testGunLicensee()
     {
-        ProcessApplicationService service = (ProcessApplicationService) ServiceProxy.newInstance(ProcessApplicationService.class);
+        ProcessApplicationService service = (ProcessApplicationService) ServiceProxy.newInstance(ProcessApplicationService.class, applicationContext);
         
         // invalid application
         Application application = new Application(Application.TYPE_GUN_LICENSEE);
@@ -94,7 +94,7 @@ public class TestProcessApplication implements ApplicationContextAware
     @Test
     public void testDriverLicesee()
     {
-        ProcessApplicationService service = (ProcessApplicationService) ServiceProxy.newInstance(ProcessApplicationService.class);
+        ProcessApplicationService service = (ProcessApplicationService) ServiceProxy.newInstance(ProcessApplicationService.class, applicationContext);
 
         // invalid application
         Application application = new Application(Application.TYPE_DRIVER_LICENSEE);

@@ -29,6 +29,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -51,6 +53,9 @@ public class TestRemoteServiceExecutor
     private static final Logger logger = LogFactory.getLogger(TestRemoteServiceExecutor.class);
     
     private ServiceInvokerServer server;
+    
+    @Autowired
+    private ApplicationContext context;
 
     @After
     public void finish()
@@ -118,7 +123,7 @@ public class TestRemoteServiceExecutor
                 {
                     try
                     {
-                        RemoteServiceExecutor executor = new RemoteServiceExecutor();
+                        RemoteServiceExecutor executor = new RemoteServiceExecutor(context);
                         
                         // invoke math service
                         Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);

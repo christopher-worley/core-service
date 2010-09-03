@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
+
 import core.service.ApplyRules;
 import core.service.Security;
 import core.service.exception.ServiceException;
@@ -57,9 +59,9 @@ public class ServiceProxy implements InvocationHandler
 	 * @param serviceClass
 	 * @return
 	 */
-	public static Object newInstance(Class serviceClass)
+	public static Object newInstance(Class serviceClass, ApplicationContext context)
 	{
-		return newInstance(serviceClass, null);
+		return newInstance(serviceClass, context, null);
 	}
     
     /**
@@ -69,12 +71,12 @@ public class ServiceProxy implements InvocationHandler
      * @param executor
      * @return
      */
-    public static Object newInstance(Class serviceInterface, ClientServiceSession session)
+    public static Object newInstance(Class serviceInterface, ApplicationContext context, ClientServiceSession session)
     {
         return java.lang.reflect.Proxy.newProxyInstance(
                 serviceInterface.getClassLoader(),
                 new Class[] {serviceInterface}, 
-                new ServiceProxy(serviceInterface, session));
+                new ServiceProxy(serviceInterface, context, session));
     }
     
     /** decimal formatter for logging */
@@ -87,6 +89,8 @@ public class ServiceProxy implements InvocationHandler
     
     /** service interface */
     private Class serviceInterface;
+    
+    private ApplicationContext context;
 
     /**
      * Create service proxy to use the given executor 
@@ -94,11 +98,12 @@ public class ServiceProxy implements InvocationHandler
      * 
      * @param executor
      */
-    protected ServiceProxy(Class serviceInterface, ClientServiceSession session)
+    protected ServiceProxy(Class serviceInterface, ApplicationContext context, ClientServiceSession session)
     {
         super();
         this.serviceInterface = serviceInterface;
         this.session = session;
+        this.context = context;
         ruleExecutor = new RuleExecutor();
     }
 
@@ -157,7 +162,7 @@ public class ServiceProxy implements InvocationHandler
         }
         
         // check permissions
-        ServiceSecurity serviceSecurity = (ServiceSecurity) ServiceContextUtil.getApplicationContext().getBean("serviceSecurity");
+        ServiceSecurity serviceSecurity = (ServiceSecurity) context.getBean("serviceSecurity");
         logger.debug("Authenticating service request (session={0},serviceInterface={1},method={2},securityClass={3}).",
         		session,
                 serviceInterface.getName(),
@@ -236,7 +241,7 @@ public class ServiceProxy implements InvocationHandler
         if (securityException == null)
         {
             // get executor and execute service
-            ServiceExecutor executor = (ServiceExecutor) ServiceContextUtil.getApplicationContext().getBean("serviceExecutor");
+            ServiceExecutor executor = (ServiceExecutor) context.getBean("serviceExecutor");
             result = executor.execute(serviceInterface, method, method.getParameterTypes(), args);
             
             long endTime = System.currentTimeMillis();

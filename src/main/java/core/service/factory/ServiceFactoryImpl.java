@@ -1,16 +1,24 @@
 package core.service.factory;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import core.service.proxy.ServiceProxy;
 import core.service.session.ClientServiceSession;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
-public class ServiceFactoryImpl implements ServiceFactory
+public class ServiceFactoryImpl implements ServiceFactory, ApplicationContextAware
 {
 	/** logger for this class */
 	private Logger logger = LogFactory.getLogger(ServiceFactoryImpl.class);
 
 	private ClientServiceSession session;
+	
+	@Autowired
+	private ApplicationContext context;
 
 	public ServiceFactoryImpl()
 	{
@@ -37,7 +45,13 @@ public class ServiceFactoryImpl implements ServiceFactory
 		// serviceInterface.getName());
 		// }
 
-		return ServiceProxy.newInstance(serviceInterface, session);
+		return ServiceProxy.newInstance(serviceInterface, context, session);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+	{
+		this.context = applicationContext;
 	}
 
 }

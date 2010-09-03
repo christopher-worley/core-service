@@ -23,21 +23,28 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import core.service.exception.ServiceException;
 import core.service.exception.ServiceRollback;
 import core.service.executor.ServiceExecutor;
 import core.service.result.ServiceResult;
-import core.service.util.ServiceContextUtil;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
-public class LocalServiceExecutor implements ServiceExecutor
+public class LocalServiceExecutor implements ServiceExecutor, ApplicationContextAware
 {
     /** logger for this class */
     private Logger logger = LogFactory.getLogger(LocalServiceExecutor.class);
 
     /** decimal formatter for logging */
     private DecimalFormat decimalFormat = new DecimalFormat("##0.0000");
+
+    @Autowired
+    private ApplicationContext context;
     
     /**
      * Constructor with InformationDomain
@@ -97,7 +104,7 @@ public class LocalServiceExecutor implements ServiceExecutor
         try
         {
             // create instance of the service
-            ServiceInstantiator instantiator = (ServiceInstantiator) ServiceContextUtil.getApplicationContext().getBean("serviceInstantiator");
+            ServiceInstantiator instantiator = (ServiceInstantiator) context.getBean("serviceInstantiator");
             Object serviceObject = instantiator.instantiateService(interfaceClass);
 
             logger.debug("Invoking serivice (class={0},method={1})", 
@@ -152,5 +159,11 @@ public class LocalServiceExecutor implements ServiceExecutor
 
         return result;
     }
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+	{
+		this.context = applicationContext;
+	}
 
 }

@@ -19,11 +19,13 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import java.io.Serializable;
+
 import core.service.validation.Max;
 import core.service.validation.Min;
 import core.service.validation.StringValidation;
 
-public class Applicant
+public class Applicant implements Serializable
 {
     
 	@StringValidation(allowEmpty=false, maxSize=30)

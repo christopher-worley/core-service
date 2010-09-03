@@ -21,6 +21,9 @@
 
 import java.lang.reflect.Method;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
 import core.service.bus.ServiceBus;
 import core.service.bus.ServiceRequestMessage;
 import core.service.bus.ServiceRequestMessageImpl;
@@ -42,13 +45,16 @@ public class RemoteServiceExecutor implements ServiceExecutor
     
     private static volatile long nextMessageId = 0;
     
+    @Autowired
+    private ApplicationContext context;
+    
     /**
      * 
      */
     public RemoteServiceExecutor()
     {
         super();
-        serviceBus = (ServiceBus) ServiceContextUtil.getApplicationContext().getBean("serviceBus");
+        serviceBus = (ServiceBus) context.getBean("serviceBus");
     }
 
     @Override

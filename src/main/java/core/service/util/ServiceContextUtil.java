@@ -35,16 +35,16 @@ public class ServiceContextUtil
     /**
      * @return
      */
-    public static ApplicationContext getApplicationContext() {
-        if (applicationContext == null) {
-            synchronized (ServiceContextUtil.class) {
-                if (applicationContext == null) {
-                    applicationContext = new ClassPathXmlApplicationContext(System.getProperty("core.service.context.file"));
-                }
-            }
-        }
-        return applicationContext;
-    }
+//    public static ApplicationContext getApplicationContext() {
+//        if (applicationContext == null) {
+//            synchronized (ServiceContextUtil.class) {
+//                if (applicationContext == null) {
+//                    applicationContext = new ClassPathXmlApplicationContext(System.getProperty("core.service.context.file"));
+//                }
+//            }
+//        }
+//        return applicationContext;
+//    }
 
     /**
      * @param context

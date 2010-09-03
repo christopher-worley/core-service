@@ -52,8 +52,8 @@
 
 	<bean id="serviceSecurity" class="core.service.security.ServiceSecurityImpl"/>
 
-	<bean id="serviceExecutor" class="core.service.executor.local.LocalServiceExecutor" scope="prototype"/>
-	<!-- bean id="serviceExecutor" class="core.service.executor.mina.MinaClientServiceExecutor" scope="prototype"/ -->
+	<!-- bean id="serviceExecutor" class="core.service.executor.local.LocalServiceExecutor" scope="prototype"/ -->
+	<bean id="serviceExecutor" class="core.service.executor.mina.MinaClientServiceExecutor" scope="prototype"/>
 
 	<bean id="serviceInstantiator" class="core.service.test.mock.MockServiceFactory" scope="prototype"/>
 

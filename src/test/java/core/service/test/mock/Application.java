@@ -19,7 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
-public class Application
+import java.io.Serializable;
+
+public class Application implements Serializable
 {
 
     public static final int TYPE_DRIVER_LICENSEE = 0;

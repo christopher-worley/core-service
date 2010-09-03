@@ -1,6 +1,7 @@
 package core.service.session;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -14,6 +15,7 @@ public class ClientServiceSessionImpl implements ClientServiceSession, Applicati
     /** logger for this class */
     private Logger logger = LogFactory.getLogger(ClientServiceSessionImpl.class);
 
+    @Autowired
 	private ApplicationContext context;
 
 	private String connectionURL;
@@ -21,6 +23,15 @@ public class ClientServiceSessionImpl implements ClientServiceSession, Applicati
 	private SecurityEntity entity;
 
 	private ServiceFactory serviceFactory;
+	
+	
+	/**
+	 * 
+	 */
+	public ClientServiceSessionImpl()
+	{
+		super();
+	}
 
 	/**
 	 * @param entity
