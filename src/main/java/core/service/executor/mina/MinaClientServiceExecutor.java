@@ -18,6 +18,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import core.service.exception.ServiceException;
 import core.service.executor.ServiceExecutor;
 import core.service.result.ServiceResult;
+import core.service.server.ServiceRequest;
 import core.service.server.ServiceRequestImpl;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
@@ -89,19 +90,13 @@ public class MinaClientServiceExecutor implements ServiceExecutor
 		session = future.getSession();
 	}
 
+	
 	/* (non-Javadoc)
-	 * @see core.service.executor.ServiceExecutor#execute(java.lang.Class, java.lang.reflect.Method, java.lang.Class[], java.lang.Object[])
+	 * @see core.service.executor.ServiceExecutor#execute(core.service.server.ServiceRequest)
 	 */
 	@Override
-	public ServiceResult execute(Class interfaceClass, Method method, Class[] paramTypes, Object... args)
-			throws ServiceException
+	public ServiceResult execute(ServiceRequest request) throws ServiceException
 	{
-		ServiceRequestImpl request = new ServiceRequestImpl();
-		request.setArguments(args);
-		request.setMethodName(method.getName());
-		request.setParamTypes(paramTypes);
-		request.setServiceInterfaceClassName(interfaceClass.getName());
-		
 		// Send the first ping message
 		logger.info("Writing service request...");
 		getSession().write(request);

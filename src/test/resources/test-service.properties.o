@@ -1,4 +1,0 @@
-
-core.service.server.invoker.limit=10
-core.service.context.file=test-core-service-context.xml
-

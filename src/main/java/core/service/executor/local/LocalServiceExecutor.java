@@ -32,6 +32,7 @@ import core.service.exception.ServiceException;
 import core.service.exception.ServiceRollback;
 import core.service.executor.ServiceExecutor;
 import core.service.result.ServiceResult;
+import core.service.server.ServiceRequest;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -92,8 +93,7 @@ public class LocalServiceExecutor implements ServiceExecutor, ApplicationContext
     }
 
     @Override
-    public ServiceResult execute(Class interfaceClass, Method method, Class[] paramTypes, Object... args)
-            throws ServiceException
+    public ServiceResult execute(ServiceRequest request) throws ServiceException
     {
         // calculate elapsed time
         long startTime = System.currentTimeMillis();
@@ -103,6 +103,9 @@ public class LocalServiceExecutor implements ServiceExecutor, ApplicationContext
 
         try
         {
+        	Class interfaceClass = Class.forName(request.getServiceInterfaceName());
+        	Method method = interfaceClass.getMethod(request.getMethodName(), request.getParamTypes());
+        	
             // create instance of the service
             ServiceInstantiator instantiator = (ServiceInstantiator) context.getBean("serviceInstantiator");
             Object serviceObject = instantiator.instantiateService(interfaceClass);
@@ -112,7 +115,7 @@ public class LocalServiceExecutor implements ServiceExecutor, ApplicationContext
                     method.getName());
 
             // execute
-            result = doExecution(serviceObject, method, paramTypes, args);
+            result = doExecution(serviceObject, method, request.getParamTypes(), request.getArguments());
 
             shouldCommit = true;
         } 
@@ -143,8 +146,8 @@ public class LocalServiceExecutor implements ServiceExecutor, ApplicationContext
             // doAfterExecution(adapters, shouldCommit);
             long endTime = System.currentTimeMillis();
             logger.debug("Local service execution finished (class={0},method={1},elapsedTime={2},responeType={3},message={4}).", 
-                    interfaceClass.getName(),
-                    method.getName(),
+                    request.getServiceInterfaceName(),
+                    request.getMethodName(),
                     decimalFormat.format((endTime - startTime) / 60000.0),
                     result == null ? "N/A" : ServiceResult.getResponseDescription(result.getResponseType()),
                     result == null ? "N/A" : result.getMessage());

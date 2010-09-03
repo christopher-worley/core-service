@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import core.service.executor.local.LocalServiceExecutor;
 import core.service.result.ServiceResult;
+import core.service.server.ServiceRequestImpl;
 import core.service.test.mock.MathService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -50,11 +51,17 @@ public class TestLocalServiceExecutor
     @Test
     public void testDoExecute() throws SecurityException, NoSuchMethodException 
     {
-        LocalServiceExecutor executor = new LocalServiceExecutor(context);
+        LocalServiceExecutor executor = (LocalServiceExecutor) context.getBean("localServiceExecutor");
         
         Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);
         
-        ServiceResult result = executor.execute(MathService.class, addMethod, new Class[] {Integer.class, Integer.class}, new Object[] {2, 2});
+        ServiceRequestImpl request = new ServiceRequestImpl();
+        request.setArguments(new Object[] {2, 2});
+        request.setParamTypes(new Class[] {Integer.class, Integer.class});
+        request.setMethodName("add");
+        request.setServiceInterfaceClassName(MathService.class.getName());
+        
+        ServiceResult result = executor.execute(request);
         
         Assert.assertTrue(result.isSuccess());
         Assert.assertEquals(new Integer(4), result.getPayload());

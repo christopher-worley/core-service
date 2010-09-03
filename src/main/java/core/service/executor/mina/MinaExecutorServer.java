@@ -10,7 +10,6 @@ import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactor
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.springframework.context.ApplicationContext;
 
-import core.service.session.ClientServiceSessionFactoryImpl;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 

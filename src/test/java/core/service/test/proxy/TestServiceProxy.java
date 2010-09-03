@@ -43,7 +43,6 @@ public class TestServiceProxy
     @Before
     public void setup()
     {
-        new SystemPropertyFileReader("test-service.properties");
     }
     
     @Test

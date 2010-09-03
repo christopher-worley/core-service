@@ -19,10 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.executor;
 
-import java.lang.reflect.Method;
-
 import core.service.exception.ServiceException;
 import core.service.result.ServiceResult;
+import core.service.server.ServiceRequest;
 
 
 /**
@@ -35,6 +34,6 @@ import core.service.result.ServiceResult;
 public interface ServiceExecutor
 {
 
-    public ServiceResult execute(Class interfaceClass, Method method, Class[] paramTypes, Object ... args) throws ServiceException;
+    public ServiceResult execute(ServiceRequest request) throws ServiceException;
 
 }

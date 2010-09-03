@@ -33,7 +33,6 @@ public class TestServiceSession {
     @Before
     public void setup()
     {
-        new SystemPropertyFileReader("test-service.properties");
     }
 
     /**

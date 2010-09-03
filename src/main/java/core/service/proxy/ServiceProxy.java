@@ -19,29 +19,23 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.proxy;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
 
-import core.service.ApplyRules;
-import core.service.Security;
 import core.service.exception.ServiceException;
+import core.service.exception.ServiceInvocationError;
 import core.service.exception.ServiceResultException;
 import core.service.exception.ServiceSecurityException;
 import core.service.executor.ServiceExecutor;
+import core.service.invocation.ServiceInvocationAction;
 import core.service.result.ServiceResult;
-import core.service.rule.RuleExecutor;
-import core.service.security.ServiceSecurity;
+import core.service.server.ServiceRequest;
+import core.service.server.ServiceRequestImpl;
 import core.service.session.ClientServiceSession;
-import core.service.util.ServiceContextUtil;
-import core.service.validation.ServiceValidationException;
-import core.service.validation.ValidationExecutor;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -81,18 +75,23 @@ public class ServiceProxy implements InvocationHandler
     
     /** decimal formatter for logging */
     private DecimalFormat decimalFormat = new DecimalFormat("##0.0000");
-    
-    /** rule executor */
-    private RuleExecutor ruleExecutor = null;
 
+    /** session */
     private ClientServiceSession session = null;
     
     /** service interface */
     private Class serviceInterface;
-    
-    private ApplicationContext context;
 
-    /**
+    /** application context */
+    private ApplicationContext context;
+    
+    /** actions to invoke before service is invoked */
+    private List<ServiceInvocationAction> beforeActions;
+
+	/** actions to invoke after service is invoked */
+    private List<ServiceInvocationAction> afterActions;
+
+	/**
      * Create service proxy to use the given executor 
      * when invoking services
      * 
@@ -104,83 +103,31 @@ public class ServiceProxy implements InvocationHandler
         this.serviceInterface = serviceInterface;
         this.session = session;
         this.context = context;
-        ruleExecutor = new RuleExecutor();
     }
 
-    /**
-     * Invoke rules to validate parameters
-     */
-    private ServiceResult businessRulesValidation(Method method, Object[] args)
-    {
-        List<Object> objects = new ArrayList<Object>();
-        ApplyRules context = method.getAnnotation(ApplyRules.class);
-        
-        if (context != null)
-        {
-            objects.addAll(Arrays.asList(args));
-        }
-        else
-        {
-            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-            for (int paramIndex = 0; paramIndex < parameterAnnotations.length; paramIndex++)
-            {
-                for (int annotIndex = 0; annotIndex < parameterAnnotations[paramIndex].length; annotIndex++)
-                {
-                    if (parameterAnnotations[paramIndex][annotIndex] instanceof ApplyRules)
-                    {
-                        objects.add(args[paramIndex]);
-                    }
-                }
-            }
-        }
-
-        ServiceResult<?> result = new ServiceResult();
-        if (objects.size() > 0)
-        {
-            objects.add(result);
-            ruleExecutor.execute(objects);
-        }
-        return result;
-    }
-
-    /**
-     * Check security on service method for current user
-     * 
-     * @param method
-     * @param args
-     */
-    private void checkSecurity(Method method, Object[] args)
-    {
-        Security security = method.getAnnotation(Security.class);
-        if (security == null)
-        {
-            // no security defined
-            logger.debug("No security required for service (serviceInterface={0},method={1}).",
-                    serviceInterface.getName(),
-                    method.getName());
-            return;
-        }
-        
-        // check permissions
-        ServiceSecurity serviceSecurity = (ServiceSecurity) context.getBean("serviceSecurity");
-        logger.debug("Authenticating service request (session={0},serviceInterface={1},method={2},securityClass={3}).",
-        		session,
-                serviceInterface.getName(),
-                method.getName(),
-                serviceSecurity.getClass().getName());
-        serviceSecurity.authenticate(session, serviceInterface, method, args);
-    }
-
-	/**
-	 * @param method
-	 * @param args
-	 */
-	private void checkValidation(Method method, Object[] args) {
-		ValidationExecutor validationExecutoin = new ValidationExecutor(args);
-		
+	public List<ServiceInvocationAction> getAfterActions()
+	{
+		return afterActions;
 	}
 
-	/**
+	public List<ServiceInvocationAction> getBeforeActions()
+	{
+		return beforeActions;
+	}
+    
+    /**
+     * @param objects
+     * @return
+     */
+    private Class[] getTypes(Object[] objects) {
+    	Class[] types = new Class[objects.length];
+    	for (int index = 0; index < objects.length; index++) {
+    		types[index] = objects[index].getClass();
+    	}
+    	return types;
+    }
+
+    /**
      * Execute the service with the given executor.  
      *
      * If the service methods return type is <code>ServiceResult</code> then return
@@ -200,74 +147,38 @@ public class ServiceProxy implements InvocationHandler
         // track time
         long startTime = System.currentTimeMillis();
         
-        // validation
-        Exception validationException = null;
-        try 
-        {
-        	checkValidation(method, args);
-        }
-        catch (ServiceValidationException e) 
-        {
-        	validationException = e;
-        }
-
-        // security check
-        Exception securityException = null;
-        if (session != null) 
-        {
-            try
-            {
-                checkSecurity(method, args);
-            }
-            catch (ServiceSecurityException e)
-            {
-                securityException = e;
-            }
-            catch (Exception e)
-            {
-                logger.error("An unexpected exception occured while authenticating service: {0}.", e.getMessage(), e);
-                throw new ServiceException("An unexpected exception occured while authenticating service.", e);
-            }
-        }
+        // create service request
+        ServiceRequestImpl request = new ServiceRequestImpl();
+        request.setArguments(args);
+        request.setMethodName(method.getName());
+        request.setParamTypes(getTypes(args));
+        request.setServiceInterfaceClassName(serviceInterface.getName());
         
-        // business rules validation, if result response type is error then return the result 
-        ServiceResult<?> result = businessRulesValidation(method, args);
-        if (result.isError())
-        {
-            return result;
-        }
+        // invoke before actions
+    	ServiceResult beforeResult = invokeActions(beforeActions, request);
+    	if (beforeResult != null) 
+    	{
+    		return beforeResult;
+    	}
+        
+    	// invoke service
+        ServiceResult result = invokeService(request);
 
-        // only invoke service if security was checked with no exceptions
-        if (securityException == null)
-        {
-            // get executor and execute service
-            ServiceExecutor executor = (ServiceExecutor) context.getBean("serviceExecutor");
-            result = executor.execute(serviceInterface, method, method.getParameterTypes(), args);
-            
-            long endTime = System.currentTimeMillis();
-            logger.info("Proxy service execution complete (serviceInterface={0},method={1},elapsedTime={2}).",
-                    serviceInterface.getName(),
-                    method.getName(),
-                    decimalFormat.format((endTime - startTime) / 60000.0));
-        }
+        // invoke before actions
+    	ServiceResult afterResult = invokeActions(afterActions, request);
+    	if (afterResult != null) 
+    	{
+    		return afterResult;
+    	}
+        
+        long endTime = System.currentTimeMillis();
+        logger.info("Proxy service execution complete (serviceInterface={0},method={1},elapsedTime={2}).",
+                serviceInterface.getName(),
+                method.getName(),
+                decimalFormat.format((endTime - startTime) / 60000.0));
 
-        // NOTE: This is the only condition we will return ServiceResult
-        // handle security exception
-        if (securityException != null)
-        {
-            // if return type is ServiceResult return service result with response type PERISSION
-            if (method.getReturnType().equals(ServiceResult.class))
-            {
-                return ServiceResult.permission("Service authentication failed: " + securityException.getMessage(), securityException);
-            }
-            // otherwise, re throw the exception
-            else
-            {
-                throw new ServiceException("Service authentication failed.", securityException);
-            }
-        }
         // if return type is ServiceResult then return it
-        else if (method.getReturnType().equals(ServiceResult.class))
+        if (method.getReturnType().equals(ServiceResult.class))
         {
             return result;
         }
@@ -294,5 +205,63 @@ public class ServiceProxy implements InvocationHandler
                 + result.getPayload().getClass().getName()
                 + ").");
     }
+    
+    /**
+	 * @param beforeActions2
+	 * @param request
+	 * @return
+	 */
+	private ServiceResult invokeActions(List<ServiceInvocationAction> actions,
+			ServiceRequestImpl request)
+	{
+		if (actions == null) 
+		{
+			return null;
+		}
+		
+    	try 
+    	{
+    		for (ServiceInvocationAction action : actions) 
+    		{
+        		action.executeAction(session, request, null);
+    		}
+    	} 
+    	// if security exception was thrown then return result of type permission
+    	catch (ServiceSecurityException e) 
+    	{
+    		return ServiceResult.permission(e.getMessage());
+    	}
+    	// if invocation error excetion was thrown then return result type of error
+    	catch (ServiceInvocationError e) 
+    	{
+    		return ServiceResult.error(e.getMessage());
+    	} 
+    	catch (Exception e) 
+    	{
+    		return ServiceResult.exception(e.getMessage(), e);
+    	}
+    	return null;
+	}
+
+	/**
+	 * @param method
+	 * @param args
+	 */
+	private ServiceResult invokeService(ServiceRequest request)
+	{
+        // get executor and execute service
+        ServiceExecutor executor = (ServiceExecutor) context.getBean("serviceExecutor");
+        return executor.execute(request);
+	}
+
+	public void setAfterActions(List<ServiceInvocationAction> afterActions)
+	{
+		this.afterActions = afterActions;
+	}
+
+	public void setBeforeActions(List<ServiceInvocationAction> beforeActions)
+	{
+		this.beforeActions = beforeActions;
+	}
 
 }
