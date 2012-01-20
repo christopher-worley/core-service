@@ -2,7 +2,7 @@ package core.service.security;
 
 import java.lang.reflect.Method;
 
-import core.service.Security;
+import core.service.annotation.Security;
 import core.service.exception.ServiceSecurityException;
 import core.service.session.ClientServiceSession;
 

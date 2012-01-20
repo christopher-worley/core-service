@@ -20,7 +20,6 @@
  */package core.service.util;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * wrapper for spring application context 

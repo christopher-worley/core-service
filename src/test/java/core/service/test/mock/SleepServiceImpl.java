@@ -19,10 +19,19 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
 public class SleepServiceImpl implements SleepService
 {
 
-    @Override
+	
+    public SleepServiceImpl()
+	{
+		super();
+	}
+
+	@Override
     public void sleep(long millis)
     {
         try

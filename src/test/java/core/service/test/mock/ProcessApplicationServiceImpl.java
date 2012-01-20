@@ -19,10 +19,13 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import org.springframework.context.annotation.Configuration;
+
 import core.service.result.ServiceResult;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
+@Configuration
 public class ProcessApplicationServiceImpl implements ProcessApplicationService
 {
     /** logger for this class */

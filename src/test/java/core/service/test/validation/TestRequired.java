@@ -10,9 +10,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import core.service.validation.DefaultAnnotationValidator;
 import core.service.validation.Required;
 import core.service.validation.ServiceValidationException;
-import core.service.validation.DefaultAnnotationValidator;
 import core.service.validation.Validator;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;

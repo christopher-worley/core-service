@@ -1,0 +1,82 @@
+
+/*
+
+  Core Service
+  
+*/
+
+apply plugin: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+
+sourceCompatibility = 1.6
+version = '0.0.1'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Core Service', 'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+    	url "file:///home/cworley/.m2/repository/"
+    }
+}
+
+dependencies {
+	compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.4'
+	
+	compile group: 'cglib', name: 'cglib', version: '2.2.2'
+
+	compile group: 'commons-io', name: 'commons-io', version: '2.1'
+	compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+	
+	compile group: 'org.drools', name: 'knowledge-api', version: '5.3.1.Final'
+	compile group: 'org.drools', name: 'drools-compiler', version: '5.3.1.Final'
+	compile group: 'org.drools', name: 'drools-core', version: '5.3.1.Final'
+
+    compile group: 'org.springframework', name: 'spring-core', version: '3.1.0.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context', version: '3.1.0.RELEASE'
+    compile group: 'org.springframework', name: 'spring-test', version: '3.1.0.RELEASE'
+
+    compile group: 'com.coreinformationsolutions', name: 'core-tooling', version: '0.0.1'
+}
+
+task downloadLibs(type: Sync) {
+	from(configurations.compile)
+	into('lib')
+}
+
+/*
+ Maven Config
+*/
+
+
+configure(install.repositories.mavenInstaller) {
+    pom.project {
+        groupId 'com.coreinformationsolutions'
+        artifactId 'core-service'
+        inceptionYear '2012'
+        packaging 'jar'
+        // TODO: license
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn:classes) {
+     classifier = 'sources'
+     from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+     classifier = 'javadoc'
+     from javadoc.destinationDir
+}
+
+artifacts {
+     archives sourcesJar
+     archives javadocJar
+}
+
+

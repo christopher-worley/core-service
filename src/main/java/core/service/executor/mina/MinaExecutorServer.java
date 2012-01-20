@@ -10,7 +10,6 @@ import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactor
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.springframework.context.ApplicationContext;
 
-import core.service.session.ClientServiceSessionFactoryImpl;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -20,6 +19,8 @@ public class MinaExecutorServer
 
     private static final Logger LOGGER = LogFactory.getLogger(MinaExecutorServer.class);
 
+    private IoAcceptor acceptor; 
+    
 	/**
 	 * 
 	 */
@@ -36,8 +37,8 @@ public class MinaExecutorServer
 	{
 		LOGGER.info("Server starting...");
 
-		IoAcceptor acceptor = new NioSocketAcceptor();
-
+		acceptor = new NioSocketAcceptor();
+		
 		//acceptor.getFilterChain().addLast("logger", new LoggingFilter());
 		acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
 
@@ -45,5 +46,12 @@ public class MinaExecutorServer
 		acceptor.getSessionConfig().setReadBufferSize(2048);
 		acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 10);
 		acceptor.bind(new InetSocketAddress(PORT));
+	}
+	
+	/**
+	 * 
+	 */
+	public void stop() {
+		acceptor.unbind(new InetSocketAddress(PORT));
 	}
 }

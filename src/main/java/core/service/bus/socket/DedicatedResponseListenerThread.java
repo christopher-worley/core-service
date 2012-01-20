@@ -27,7 +27,6 @@ import java.util.Map;
 import core.service.bus.ServiceBusDefs;
 import core.service.bus.ServiceRequestMessage;
 import core.service.bus.ServiceRequestResponse;
-import core.service.exception.ServiceException;
 import core.service.result.ServiceResult;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;

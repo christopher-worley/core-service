@@ -19,6 +19,10 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import core.service.annotation.Service;
+
+
+@Service
 public interface SleepService
 {
     public void sleep(long millis);

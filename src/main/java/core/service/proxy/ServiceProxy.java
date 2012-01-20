@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.springframework.context.ApplicationContext;
 
-import core.service.ApplyRules;
-import core.service.Security;
+import core.service.annotation.ApplyRules;
+import core.service.annotation.Security;
 import core.service.exception.ServiceException;
 import core.service.exception.ServiceResultException;
 import core.service.exception.ServiceSecurityException;
@@ -39,7 +39,6 @@ import core.service.result.ServiceResult;
 import core.service.rule.RuleExecutor;
 import core.service.security.ServiceSecurity;
 import core.service.session.ClientServiceSession;
-import core.service.util.ServiceContextUtil;
 import core.service.validation.ServiceValidationException;
 import core.service.validation.ValidationExecutor;
 import core.tooling.logging.LogFactory;

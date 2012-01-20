@@ -19,6 +19,11 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import org.springframework.context.annotation.Configuration;
+
+import core.service.annotation.Service;
+
+@Service
 public interface ThrowExceptionService
 {
 

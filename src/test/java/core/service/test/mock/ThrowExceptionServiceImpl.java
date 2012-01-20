@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
 public class ThrowExceptionServiceImpl implements ThrowExceptionService
 {
 

@@ -19,10 +19,20 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+
+
+@Configuration
 public class MathServiceImpl implements MathService
 {
 
-    @Override
+    public MathServiceImpl()
+	{
+		super();
+	}
+
+	@Override
     public Integer add(Integer x, Integer y)
     {
         return x + y;

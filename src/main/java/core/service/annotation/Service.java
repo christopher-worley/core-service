@@ -17,15 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with Core Service Framework.  If not, see 
  * <http://www.gnu.org/licenses/>.
- */package core.service;
+ */package core.service.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD,ElementType.PARAMETER})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ApplyRules
+public @interface Service
 {
+	String name() default "";
 }

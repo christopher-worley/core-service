@@ -19,12 +19,6 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.factory;
 
-import core.service.Service;
-import core.service.exception.ServiceException;
-import core.service.proxy.ServiceProxy;
-import core.service.security.SecurityEntity;
-import core.service.session.ClientServiceSession;
-import core.service.session.ClientServiceSessionFactory;
 
 /**
  * Create objects for invoking services.  The returned

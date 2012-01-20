@@ -19,11 +19,14 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
-import core.service.ApplyRules;
-import core.service.InformationBean;
+import org.springframework.context.annotation.Configuration;
+
+import core.service.annotation.ApplyRules;
+import core.service.annotation.InformationBean;
+import core.service.annotation.Service;
 import core.service.result.ServiceResult;
 
-@InformationBean(beanName="processApplicationService")
+@Service
 public interface ProcessApplicationService
 {
 

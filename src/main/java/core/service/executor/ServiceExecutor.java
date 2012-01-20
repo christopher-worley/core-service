@@ -26,8 +26,10 @@ import core.service.result.ServiceResult;
 
 
 /**
- * Interface to be used for implementation classes 
- * who invoke services.
+ * Service executors are proxy objects returned from 
+ * the service factory in place of the true service
+ * implementation.  Service executors define the behavior
+ * in which the service will be executed.
  * 
  * @author worleyc
  *

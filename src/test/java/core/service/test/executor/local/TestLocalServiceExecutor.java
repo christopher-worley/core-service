@@ -50,7 +50,9 @@ public class TestLocalServiceExecutor
     @Test
     public void testDoExecute() throws SecurityException, NoSuchMethodException 
     {
-        LocalServiceExecutor executor = new LocalServiceExecutor(context);
+//        LocalServiceExecutor executor = new LocalServiceExecutor(context);
+    	// TODO: commented out to fix compile error
+        LocalServiceExecutor executor = new LocalServiceExecutor();
         
         Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);
         

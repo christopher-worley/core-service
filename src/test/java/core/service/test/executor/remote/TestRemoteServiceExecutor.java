@@ -45,8 +45,6 @@ import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 import core.tooling.property.SystemPropertyFileReader;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations="/test-core-service-context.xml")
 public class TestRemoteServiceExecutor
 {
     
@@ -123,7 +121,9 @@ public class TestRemoteServiceExecutor
                 {
                     try
                     {
-                        RemoteServiceExecutor executor = new RemoteServiceExecutor(context);
+                        RemoteServiceExecutor executor = new RemoteServiceExecutor();
+                        // TODO: commented out to fix compile error
+//                        RemoteServiceExecutor executor = new RemoteServiceExecutor(context);
                         
                         // invoke math service
                         Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);

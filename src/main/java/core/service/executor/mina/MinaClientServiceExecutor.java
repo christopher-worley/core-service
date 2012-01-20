@@ -3,6 +3,7 @@
  */
 package core.service.executor.mina;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
@@ -15,8 +16,8 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
+import core.service.config.ServiceProperties;
 import core.service.exception.ServiceException;
-import core.service.executor.ServiceExecutor;
 import core.service.result.ServiceResult;
 import core.service.server.ServiceRequestImpl;
 import core.tooling.logging.LogFactory;
@@ -26,16 +27,8 @@ import core.tooling.logging.Logger;
  * @author cworley
  *
  */
-public class MinaClientServiceExecutor implements ServiceExecutor
+public class MinaClientServiceExecutor implements InvocationHandler
 {
-	
-	private Logger logger = LogFactory.getLogger(MinaClientServiceExecutor.class);
-	private IoSession session;
-	
-	private Object syncObject = new Object();
-	private CountDownLatch latch;
-	
-	private ServiceResult result = null;
 	
 	private class Handler extends IoHandlerAdapter
 	{
@@ -67,32 +60,32 @@ public class MinaClientServiceExecutor implements ServiceExecutor
 		}
 		
 	}
+	private Logger logger = LogFactory.getLogger(MinaClientServiceExecutor.class);
+	
+	private IoSession session;
+	private Object syncObject = new Object();
+	
+	private CountDownLatch latch;
+	
+	private ServiceResult result = null;
 
-	/**
-	 * 
-	 */
-	public MinaClientServiceExecutor()
-	{
-	}
-
-	/**
-	 * 
-	 */
-	public void start()
-	{
-		// Connect to the server.
-		NioSocketConnector connector = new NioSocketConnector();
-		connector.setHandler(new Handler());
-		connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
-		ConnectFuture future = connector.connect(new InetSocketAddress("localhost", MinaExecutorServer.PORT));
-		future.awaitUninterruptibly();
-		session = future.getSession();
-	}
+    
+    /** servce interface */
+    private Class serviceInterface;
+    
+    /** service properties */
+    private ServiceProperties serviceProperties;
+	
+    public MinaClientServiceExecutor(Class serviceInterface, ServiceProperties serviceProperties)
+    {
+        super();
+        this.serviceInterface = serviceInterface;
+        this.serviceProperties = serviceProperties;
+    }
 
 	/* (non-Javadoc)
 	 * @see core.service.executor.ServiceExecutor#execute(java.lang.Class, java.lang.reflect.Method, java.lang.Class[], java.lang.Object[])
 	 */
-	@Override
 	public ServiceResult execute(Class interfaceClass, Method method, Class[] paramTypes, Object... args)
 			throws ServiceException
 	{
@@ -129,6 +122,30 @@ public class MinaClientServiceExecutor implements ServiceExecutor
 			start();
 		}
 		return session;
+	}
+
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+	{
+		Class[] paramTypes = new Class[args.length];
+		for(int index = 0; index < args.length; index++) {
+			paramTypes[index] = args[index].getClass();
+		}
+		return execute(serviceInterface, method, paramTypes, args);
+	}
+
+	/**
+	 * 
+	 */
+	public void start()
+	{
+		// Connect to the server.
+		NioSocketConnector connector = new NioSocketConnector();
+		connector.setHandler(new Handler());
+		connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
+		ConnectFuture future = connector.connect(new InetSocketAddress("localhost", MinaExecutorServer.PORT));
+		future.awaitUninterruptibly();
+		session = future.getSession();
 	}
 
 }
