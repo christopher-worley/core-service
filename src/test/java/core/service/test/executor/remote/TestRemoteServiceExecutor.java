@@ -1,4 +1,4 @@
-
+package core.service.test.executor.remote;
 /**
  * Copyright 2009 Core Information Solutions LLC
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Core Service Framework.  If not, see 
  * <http://www.gnu.org/licenses/>.
- */package core.service.test.executor.remote;
+ */
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -38,6 +38,7 @@ import core.service.bus.socket.DedicatedConnectionManager;
 import core.service.executor.remote.RemoteServiceExecutor;
 import core.service.result.ServiceResult;
 import core.service.server.ServiceInvokerServer;
+import core.service.server.ServiceRequestImpl;
 import core.service.test.mock.MathService;
 import core.service.test.mock.SleepService;
 import core.service.test.mock.ThrowExceptionService;
@@ -73,7 +74,6 @@ public class TestRemoteServiceExecutor
     public void setup()
     {
         pause();
-        new SystemPropertyFileReader("test-service.properties");
         server = new ServiceInvokerServer();
         server.listen();
     }
@@ -97,11 +97,14 @@ public class TestRemoteServiceExecutor
     public void testExecute() throws SecurityException, NoSuchMethodException
     {
         RemoteServiceExecutor executor = new RemoteServiceExecutor();
-        Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);
-        ServiceResult result = executor.execute(MathService.class, 
-                addMethod, 
-                new Class[] {Integer.class, Integer.class}, 
-                new Object[] {2, 2});
+        Method add = MathService.class.getMethod("add", Integer.class, Integer.class);
+        ServiceRequestImpl request = new ServiceRequestImpl();
+        request.setArguments(new Object[] {2, 2});
+        request.setParamTypes(new Class[] {Integer.class, Integer.class});
+        request.setMethodName("add");
+        request.setServiceInterfaceClassName(MathService.class.getName());
+        
+        ServiceResult result = executor.execute(request);
         
         Assert.assertTrue(result.isSuccess());
         Assert.assertEquals(4, result.getPayload());                
@@ -126,28 +129,34 @@ public class TestRemoteServiceExecutor
 //                        RemoteServiceExecutor executor = new RemoteServiceExecutor(context);
                         
                         // invoke math service
-                        Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);
-                        ServiceResult result = executor.execute(MathService.class, 
-                                addMethod, 
-                                new Class[] {Integer.class, Integer.class}, 
-                                new Object[] {2, 2});
+                        ServiceRequestImpl request = new ServiceRequestImpl();
+                        request.setArguments(new Object[] {2, 2});
+                        request.setParamTypes(new Class[] {Integer.class, Integer.class});
+                        request.setMethodName("add");
+                        request.setServiceInterfaceClassName(MathService.class.getName());
+                        ServiceResult result = executor.execute(request);
                         
                         Assert.assertTrue(result.isSuccess());
                         Assert.assertEquals(4, result.getPayload());
                         
                         // invoke exception service
-                        Method exceptionMethod = ThrowExceptionService.class.getMethod("throwException", null);
-                        ServiceResult exceptionResult = executor.execute(ThrowExceptionService.class, exceptionMethod, null, null);
+                        request = new ServiceRequestImpl();
+                        request.setArguments(null);
+                        request.setParamTypes(null);
+                        request.setMethodName("throwException");
+                        request.setServiceInterfaceClassName(ThrowExceptionService.class.getName());
+                        ServiceResult exceptionResult = executor.execute(request);
                         Assert.assertTrue(exceptionResult.isException());
 
                         // invoke sleep service
-                        Method sleepMethod = SleepService.class.getMethod("sleep", long.class);
-                        executor.execute(SleepService.class, sleepMethod, new Class[] {long.class}, new Object[] {1000L});
+                        request = new ServiceRequestImpl();
+                        request.setArguments(new Object[] {1000L});
+                        request.setParamTypes(new Class[] {long.class});
+                        request.setMethodName("sleep");
+                        request.setServiceInterfaceClassName(SleepService.class.getName());
+                        executor.execute(request);
                     }
                     catch (SecurityException e)
-                    {
-                    }
-                    catch (NoSuchMethodException e)
                     {
                     }
                     synchronized (TestRemoteServiceExecutor.this) 
@@ -166,8 +175,12 @@ public class TestRemoteServiceExecutor
     public void testExecute_exception() throws SecurityException, NoSuchMethodException
     {
         RemoteServiceExecutor executor = new RemoteServiceExecutor();
-        Method exceptionMethod = ThrowExceptionService.class.getMethod("throwException", null);
-        ServiceResult result = executor.execute(ThrowExceptionService.class, exceptionMethod, null, null);
+        ServiceRequestImpl request = new ServiceRequestImpl();
+        request.setArguments(null);
+        request.setParamTypes(null);
+        request.setMethodName("throwException");
+        request.setServiceInterfaceClassName(ThrowExceptionService.class.getName());
+        ServiceResult result = executor.execute(request);
         
         Assert.assertTrue(result.isException());
     }
@@ -176,18 +189,25 @@ public class TestRemoteServiceExecutor
     public void testExecute_multiple() throws SecurityException, NoSuchMethodException
     {
         RemoteServiceExecutor executor = new RemoteServiceExecutor();
-        
-        Method addMethod = MathService.class.getMethod("add", Integer.class, Integer.class);
-        ServiceResult result = executor.execute(MathService.class, 
-                addMethod, 
-                new Class[] {Integer.class, Integer.class}, 
-                new Object[] {2, 2});
+
+        ServiceRequestImpl request = new ServiceRequestImpl();
+        request.setArguments(new Object[] {2, 2});
+        request.setParamTypes(new Class[] {Integer.class, Integer.class});
+        request.setMethodName("add");
+        request.setServiceInterfaceClassName(MathService.class.getName());
+
+        ServiceResult result = executor.execute(request);
         
         Assert.assertTrue(result.isSuccess());
         Assert.assertEquals(4, result.getPayload());                
 
-        Method exceptionMethod = ThrowExceptionService.class.getMethod("throwException", null);
-        result = executor.execute(ThrowExceptionService.class, exceptionMethod, null, null);
+        request = new ServiceRequestImpl();
+        request.setArguments(null);
+        request.setParamTypes(null);
+        request.setMethodName("throwException");
+        request.setServiceInterfaceClassName(ThrowExceptionService.class.getName());
+
+        result = executor.execute(request);
         
         Assert.assertTrue(result.isException());
     }

@@ -27,6 +27,7 @@ import core.service.bus.ServiceRequestResponse;
 import core.service.bus.ServiceRequestResponseImpl;
 import core.service.executor.local.LocalServiceExecutor;
 import core.service.result.ServiceResult;
+import core.service.test.mock.MathService;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -56,10 +57,14 @@ public class InvokeServiceThread implements Runnable
         {
             Class clazz = Class.forName(request.getInterfaceClassName());
             Method method = clazz.getMethod(request.getMethodName(), request.getParamTypes());
-            ServiceResult result = executor.execute(clazz, 
-                    method, 
-                    request.getParamTypes(), 
-                    request.getArguments());
+
+            ServiceRequestImpl serviceRequest = new ServiceRequestImpl();
+            serviceRequest.setArguments(request.getArguments());
+            serviceRequest.setMethodName(request.getMethodName());
+            serviceRequest.setParamTypes(request.getParamTypes());
+            serviceRequest.setServiceInterfaceClassName(request.getInterfaceClassName());
+            
+            ServiceResult result = executor.execute(serviceRequest);
             
             // lock send socket
             request.getSendSocketWrapper().acquire();

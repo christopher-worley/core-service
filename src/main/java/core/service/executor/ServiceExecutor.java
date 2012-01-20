@@ -1,4 +1,4 @@
-
+package core.service.executor;
 /**
  * Copyright 2009 Core Information Solutions LLC
  *
@@ -17,12 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with Core Service Framework.  If not, see 
  * <http://www.gnu.org/licenses/>.
- */package core.service.executor;
-
-import java.lang.reflect.Method;
+ */
 
 import core.service.exception.ServiceException;
 import core.service.result.ServiceResult;
+import core.service.server.ServiceRequest;
 
 
 /**
@@ -37,6 +36,6 @@ import core.service.result.ServiceResult;
 public interface ServiceExecutor
 {
 
-    public ServiceResult execute(Class interfaceClass, Method method, Class[] paramTypes, Object ... args) throws ServiceException;
+    public ServiceResult execute(ServiceRequest request) throws ServiceException;
 
 }

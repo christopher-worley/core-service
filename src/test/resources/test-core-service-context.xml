@@ -52,12 +52,13 @@
 
 	<bean id="serviceSecurity" class="core.service.security.ServiceSecurityImpl"/>
 
+	<bean id="localServiceExecutor" class="core.service.executor.local.LocalServiceExecutor" scope="prototype"/>
+
+	<bean id="remoteServiceExecutor" class="core.service.executor.remote.RemoteServiceExecutor" scope="prototype"/>
+
 	<bean id="serviceExecutor" class="core.service.executor.local.LocalServiceExecutor" scope="prototype"/>
 	<!-- bean id="serviceExecutor" class="core.service.executor.mina.MinaClientServiceExecutor" scope="prototype"/ -->
 
 	<bean id="serviceInstantiator" class="core.service.test.mock.MockServiceFactory" scope="prototype"/>
-
-	<bean id="serviceBus" class="core.service.bus.socket.DedicatedServiceBus" scope="prototype"/>
-	<!--bean id="serviceBus" class="core.service.bus.socket.SimpleServiceBus" scope="prototype"/-->
 
 </beans>

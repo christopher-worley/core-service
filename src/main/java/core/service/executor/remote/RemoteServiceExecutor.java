@@ -19,8 +19,6 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.executor.remote;
 
-import java.lang.reflect.Method;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -30,6 +28,7 @@ import core.service.bus.ServiceRequestMessageImpl;
 import core.service.exception.ServiceException;
 import core.service.executor.ServiceExecutor;
 import core.service.result.ServiceResult;
+import core.service.server.ServiceRequest;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -57,8 +56,7 @@ public class RemoteServiceExecutor implements ServiceExecutor
     }
 
     @Override
-    public ServiceResult execute(Class interfaceClass, Method method, Class[] paramTypes, Object... args)
-            throws ServiceException
+    public ServiceResult execute(ServiceRequest request) throws ServiceException
     {
         ServiceResult result;
         try 
@@ -68,10 +66,10 @@ public class RemoteServiceExecutor implements ServiceExecutor
             logger.debug("About to create message (messageId={0}).", messageId);
             ServiceRequestMessage message = new ServiceRequestMessageImpl(
                     messageId,
-                    interfaceClass.getName(), 
-                    method.getName(), 
-                    paramTypes, 
-                    args);
+                    request.getServiceInterfaceName(), 
+                    request.getMethodName(), 
+                    request.getParamTypes(), 
+                    request.getArguments());
             logger.debug("Message created (messageId={0}).", message.getMessageId());
             result = serviceBus.execute(message);
             long endTime = System.currentTimeMillis();
