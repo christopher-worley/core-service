@@ -21,9 +21,9 @@
 
 import java.io.Serializable;
 
-import core.service.validation.Max;
-import core.service.validation.Min;
-import core.service.validation.StringValidation;
+import core.tooling.validation.Max;
+import core.tooling.validation.Min;
+import core.tooling.validation.StringValidation;
 
 public class Applicant implements Serializable
 {

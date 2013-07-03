@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import core.service.config.ServiceProperties;
 import core.service.exception.ServiceException;
-import core.service.executor.local.LocalServiceExecutor;
+import core.service.executor.local.CoreServiceExecutor;
 import core.service.util.ServiceUtil;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;

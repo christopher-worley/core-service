@@ -4,13 +4,13 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Configuration;
 
 import core.service.proxy.ServiceProxy;
 import core.service.session.ClientServiceSession;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
+@Deprecated
 public class ServiceFactoryImpl implements ServiceFactory, ApplicationContextAware
 {
 	/** logger for this class */

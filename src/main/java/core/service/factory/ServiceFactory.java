@@ -21,10 +21,10 @@
 
 
 /**
- * Create objects for invoking services.  The returned
- * object is a ServiceProxy instance.  The behavior
- * of the service execution is based on the service
- * configuration.
+ * Factory for creating services.  
+ * 
+ * Instantiate and configure service objects for
+ * execution.
  * 
  * @author worleyc
  *
@@ -33,7 +33,10 @@ public interface ServiceFactory
 {
 
     /**
-     * Create service proxy for given service interface
+     * Create service object for the given service interface.
+     * 
+     * In most cases it is expected that a ServiceProxy is returned.  However,
+     * this is not enforced by the method signature.
      * 
      * @param serviceInterface
      * @return

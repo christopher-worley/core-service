@@ -25,9 +25,9 @@ import java.lang.reflect.Method;
 import core.service.bus.ServiceBusDefs;
 import core.service.bus.ServiceRequestResponse;
 import core.service.bus.ServiceRequestResponseImpl;
-import core.service.executor.local.LocalServiceExecutor;
+import core.service.config.DefaultServiceConfig;
+import core.service.executor.local.CoreServiceExecutor;
 import core.service.result.ServiceResult;
-import core.service.test.mock.MathService;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -51,20 +51,16 @@ public class InvokeServiceThread implements Runnable
     @Override
     public void run()
     {
-        LocalServiceExecutor executor = new LocalServiceExecutor();
+        CoreServiceExecutor executor = new CoreServiceExecutor(request.getClass(), new DefaultServiceConfig());
         
         try
         {
             Class clazz = Class.forName(request.getInterfaceClassName());
             Method method = clazz.getMethod(request.getMethodName(), request.getParamTypes());
-
-            ServiceRequestImpl serviceRequest = new ServiceRequestImpl();
-            serviceRequest.setArguments(request.getArguments());
-            serviceRequest.setMethodName(request.getMethodName());
-            serviceRequest.setParamTypes(request.getParamTypes());
-            serviceRequest.setServiceInterfaceClassName(request.getInterfaceClassName());
+          
+            Object methodResult = method.invoke(executor, request.getArguments());
             
-            ServiceResult result = executor.execute(serviceRequest);
+            ServiceResult result = ServiceResult.success("Service executed without errors.", methodResult);
             
             // lock send socket
             request.getSendSocketWrapper().acquire();

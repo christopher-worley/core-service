@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import core.service.annotation.ApplyRules;
 import core.service.annotation.InformationBean;
 import core.service.annotation.Service;
+import core.service.annotation.Service;
 import core.service.result.ServiceResult;
 
 @Service

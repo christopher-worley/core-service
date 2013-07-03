@@ -20,7 +20,6 @@
  */package core.service.test.mock;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 
 
 @Configuration
@@ -43,5 +42,16 @@ public class MathServiceImpl implements MathService
     {
         return x - y;
     }
+
+	@Override
+	public Integer multiply(Integer x, Integer y) {
+		return x * y;
+	}
+
+	@Override
+	public Integer divide(Integer x, Integer y) 
+	{
+		return x / y;
+	}
 
 }

@@ -37,9 +37,12 @@ dependencies {
 	compile group: 'org.drools', name: 'drools-compiler', version: '5.3.1.Final'
 	compile group: 'org.drools', name: 'drools-core', version: '5.3.1.Final'
 
-    compile group: 'org.springframework', name: 'spring-core', version: '3.1.0.RELEASE'
-    compile group: 'org.springframework', name: 'spring-context', version: '3.1.0.RELEASE'
-    compile group: 'org.springframework', name: 'spring-test', version: '3.1.0.RELEASE'
+    compile group: 'org.springframework', name: 'spring-core', version: '3.2.2.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context', version: '3.2.2.RELEASE'
+    compile group: 'org.springframework', name: 'spring-jdbc', version: '3.2.2.RELEASE'
+    compile group: 'org.springframework', name: 'spring-test', version: '3.2.2.RELEASE'
+
+	compile group: 'postgresql', name: 'postgresql', version: '9.1-901.jdbc4'
 
     compile group: 'com.coreinformationsolutions', name: 'core-tooling', version: '0.0.1'
 }

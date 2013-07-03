@@ -14,7 +14,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import core.service.annotation.Service;
 import core.service.config.ServiceProperties;
 import core.service.exception.ServiceException;
-import core.service.executor.local.LocalServiceExecutor;
+import core.service.executor.local.CoreServiceExecutor;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -37,7 +37,7 @@ import core.tooling.logging.Logger;
 public class ServiceBeanFactoryPostProcessor implements BeanFactoryPostProcessor
 {
     /** logger for this class */
-    private Logger logger = LogFactory.getLogger(LocalServiceExecutor.class);
+    private Logger logger = LogFactory.getLogger(CoreServiceExecutor.class);
 	
 	public static final String DEFAULT_FACTORY = "serviceFactory";
 	

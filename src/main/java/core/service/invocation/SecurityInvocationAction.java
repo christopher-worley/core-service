@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import core.service.Security;
+import core.service.annotation.Security;
 import core.service.exception.ServiceException;
 import core.service.result.ServiceResult;
 import core.service.security.ServiceSecurity;

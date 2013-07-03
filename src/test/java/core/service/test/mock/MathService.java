@@ -19,19 +19,29 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.test.mock;
 
-import org.springframework.context.annotation.Configuration;
-
 import core.service.annotation.Security;
 import core.service.annotation.Service;
+import core.tooling.validation.NotEqual;
+import core.tooling.validation.Required;
 
 @Service
 public interface MathService
 {
     
 	@Security(permissionKey=MockPermission.ADD)
-    public Integer add(Integer x, Integer y);
+    public Integer add(@Required(message="X is required") Integer x, 
+    		@Required(message="Y is required") Integer y);
     
 	@Security(permissionKey=MockPermission.SUBTRACT)
-    public Integer subtract(Integer x, Integer y);
+    public Integer subtract(@Required(message="X is required") Integer x, 
+    		@Required(message="Y is required") Integer y);
+	
+	public Integer multiply(@Required(message="X is required") Integer x,
+			@Required(message="Y is required") Integer y);
+	
+	public Integer divide(@Required(message="X is required") Integer x, 
+			@Required(message="Y is required") 
+			@NotEqual(value=1, message="Y cannot be equal to 0, divide by zero.") 
+			Integer y);
 
 }

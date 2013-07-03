@@ -27,9 +27,11 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 
 import core.service.exception.ServiceException;
+import core.service.exception.ServiceInvocationError;
 import core.service.exception.ServiceResultException;
 import core.service.exception.ServiceSecurityException;
 import core.service.executor.ServiceExecutor;
+import core.service.invocation.ServiceInvocationAction;
 import core.service.result.ServiceResult;
 import core.service.server.ServiceRequest;
 import core.service.server.ServiceRequestImpl;
@@ -229,7 +231,7 @@ public class ServiceProxy implements InvocationHandler
     	{
     		return ServiceResult.permission(e.getMessage());
     	}
-    	// if invocation error excetion was thrown then return result type of error
+    	// if invocation error execution was thrown then return result type of error
     	catch (ServiceInvocationError e) 
     	{
     		return ServiceResult.error(e.getMessage());

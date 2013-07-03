@@ -24,39 +24,52 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 
-import org.springframework.context.ApplicationContext;
-
-import core.service.config.ServiceProperties;
+import core.service.config.ServiceConfig;
 import core.service.exception.ServiceException;
+import core.service.factory.ServiceFactory;
+import core.service.plugin.ServicePlugin;
 import core.service.result.ServiceResult;
 import core.service.util.ServiceUtil;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
-public class LocalServiceExecutor implements InvocationHandler
+
+/**
+ * Primary service executor to be used in most cases.
+ * 
+ * In distributed environment this service executor should be used
+ * on the server side.  Accepts service plugins to be invoked
+ * during service execution.
+ * 
+ * @author cworley
+ *
+ */
+public class CoreServiceExecutor implements InvocationHandler
 {
     /** logger for this class */
-    private Logger logger = LogFactory.getLogger(LocalServiceExecutor.class);
+    private Logger logger = LogFactory.getLogger(CoreServiceExecutor.class);
 
     /** decimal formatter for logging */
     private DecimalFormat decimalFormat = new DecimalFormat("##0.0000");
     
-    /** servce interface */
+    /** service interface */
     private Class serviceInterface;
     
-    /** service properties */
-    private ServiceProperties serviceProperties;
+    /** service configuration */
+    private ServiceConfig<ServiceFactory> serviceConfig;
     
     /**
-     * Constructor with InformationDomain
+     * Executor constructor for service interface
+     * 
+     * Create instance for the service interface and configuration.
      * 
      * @param domain
      */
-    public LocalServiceExecutor(Class serviceInterface, ServiceProperties serviceProperties)
+    public CoreServiceExecutor(Class serviceInterface, ServiceConfig serviceConfig)
     {
         super();
         this.serviceInterface = serviceInterface;
-        this.serviceProperties = serviceProperties;
+        this.serviceConfig = serviceConfig;
     }
 
     /**
@@ -116,15 +129,55 @@ public class LocalServiceExecutor implements InvocationHandler
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
-		Class<?> serviceClass = serviceProperties.getImplementingClass(serviceInterface);
-		Object serviceObject = serviceClass.newInstance();
+		// get instance of service from the configured factory
+		Object serviceObject = serviceConfig.getServiceFactory().createService(serviceInterface);
 		
 		Class[] paramTypes = new Class[args.length];
 		for(int index = 0; index < args.length; index++) {
 			paramTypes[index] = args[index].getClass();
 		}
 		
-		return doExecution(serviceObject, method, paramTypes, args);
+		
+		// handle the before execution details
+		beforeExecution(serviceObject, method, paramTypes, args);
+		
+		// execute the service method
+		Object result = doExecution(serviceObject, method, paramTypes, args);
+		
+		// handle the after execution details
+		afterExecution(serviceObject, method, paramTypes, args);
+		
+		return result;
+	}
+
+	/**
+	 * Invoke after execution plugins that are configured
+	 * 
+	 * @param serviceObject
+	 * @param method
+	 * @param paramTypes
+	 * @param args
+	 */
+	private void afterExecution(Object serviceObject, Method method,
+			Class[] paramTypes, Object[] args) {
+		for (ServicePlugin plugin : serviceConfig.getServicePlugins()) {
+			plugin.after(serviceObject, method, paramTypes, args);
+		}
+	}
+
+	/** 
+	 * Invoke before execution plugins that are configured
+	 * 
+	 * @param serviceObject
+	 * @param method
+	 * @param paramTypes
+	 * @param args
+	 */
+	private void beforeExecution(Object serviceObject, Method method,
+			Class[] paramTypes, Object[] args) {
+		for (ServicePlugin plugin : serviceConfig.getServicePlugins()) {
+			plugin.before(serviceObject, method, paramTypes, args);
+		}
 	}
 
 }

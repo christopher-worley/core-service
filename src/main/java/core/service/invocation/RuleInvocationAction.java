@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import core.service.ApplyRules;
+import core.service.annotation.ApplyRules;
 import core.service.exception.ServiceException;
 import core.service.result.ServiceResult;
 import core.service.rule.RuleExecutor;

@@ -19,10 +19,17 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.exception;
 
+import java.text.MessageFormat;
+
 public class ServiceException extends RuntimeException
 {
 
-    public ServiceException()
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2187158788888304240L;
+
+	public ServiceException()
     {
         super();
     }
@@ -31,10 +38,19 @@ public class ServiceException extends RuntimeException
     {
         super(message);
     }
+    
+    public ServiceException(String message, Object ... params) {
+    	super(MessageFormat.format(message, params));
+    }
 
     public ServiceException(String message, Throwable cause)
     {
         super(message, cause);
+    }
+
+    public ServiceException(String message, Throwable cause, Object ... params)
+    {
+        super(MessageFormat.format(message, params), cause);
     }
 
     public ServiceException(Throwable cause)

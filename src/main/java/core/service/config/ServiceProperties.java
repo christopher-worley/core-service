@@ -9,7 +9,9 @@ import java.util.Properties;
 import core.service.exception.ServiceException;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
-
+ 
+// TODO: Pull file related code up to ServiceFileProperties, change Service Properties to interface and create a pojo impl for default use.
+@Deprecated
 public class ServiceProperties
 {
     /** logger for this class */
