@@ -1,16 +1,12 @@
 package core.service.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import core.service.config.ServiceProperties;
-import core.service.exception.ServiceException;
+import core.service.config.ServiceConfig;
 import core.service.executor.local.CoreServiceExecutor;
+import core.service.spring.bean.factory.ServiceBeanFactoryPostProcessor;
+import core.service.test.mock.MathService;
 import core.service.util.ServiceUtil;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
@@ -23,58 +19,72 @@ import core.tooling.logging.Logger;
  * @author cworley
  *
  */
-@Configuration(value="serviceFactory")
 public class SpringServiceFactory implements ServiceFactory
 {
     /** logger for this class */
     private Logger logger = LogFactory.getLogger(SpringServiceFactory.class);
 	
-	@Autowired
 	private ApplicationContext context;
+	
+	private ServiceConfig serviceConfig;
+	
+	private String[] servicePackages;
+	
+	public SpringServiceFactory(ServiceConfig serviceConfig, String[] servicePackages) {
+		this.serviceConfig = serviceConfig;
+		this.servicePackages = servicePackages;
+		initialize();
+	}
+	
+	/**
+	 * Return <code>AnnotationConfigApplicationContext</code> already configured with
+	 * services for Core Service Framework.
+	 * 
+	 * Packages containing services for you product must be included on the <code>packagesToScan</code> parameter.
+	 * 
+	 * @param serviceProperties
+	 * @param packagesToScan list of packages, will throw NPE if null
+	 * @return
+	 */
+	private AnnotationConfigApplicationContext createApplicationcontext(
+			ServiceConfig serviceConfig, 
+			String[] packagesToScan)
+	{
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.setAllowBeanDefinitionOverriding(true);
+		context.addBeanFactoryPostProcessor(new ServiceBeanFactoryPostProcessor(this, context));
+		context.scan("core.service.factory");
+		for (int index = 0; packagesToScan != null && index < packagesToScan.length; index++) {
+			context.scan(packagesToScan[index]);
+		}
+		context.refresh();
+		
+		return context;
+	}
 	
 	@Override
 	public Object createService(Class serviceInterface)
 	{
 		logger.debug("Creating service " + new ServiceUtil().getServiceName(serviceInterface));
 
-		// get properties which were added to the context by the SpringBeanFactoryPostProcessor
-		ServiceProperties serviceProperties = (ServiceProperties) context.getBean("serviceProperties");
-		Class<?> executorClazz = serviceProperties.getServiceExecutor(serviceInterface.getName());
+		CoreServiceExecutor executor = new CoreServiceExecutor(serviceInterface, this);
+    	
+    	Object service = java.lang.reflect.Proxy.newProxyInstance(
+    			serviceInterface.getClassLoader(),
+                new Class[] {serviceInterface}, 
+                executor);
+    	
+    	return service;
+	}
+	
+	
+	@Override
+	public ServiceConfig getServiceConfig() {
+		return serviceConfig;
+	}
 
-        try
-		{
-        	Constructor<?> constructor = executorClazz.getConstructor(new Class[] {Class.class, ServiceProperties.class});
-        	Object executorObject = constructor.newInstance(serviceInterface, serviceProperties);
-        	
-			return java.lang.reflect.Proxy.newProxyInstance(
-			        serviceInterface.getClassLoader(),
-			        new Class[] {serviceInterface}, 
-			        (InvocationHandler)executorObject);
-		} 
-        catch (IllegalArgumentException e)
-		{
-        	throw new ServiceException("Failed to instantiate service executor: " + e.getMessage(), e);
-		} 
-        catch (InstantiationException e)
-		{
-        	throw new ServiceException("Failed to instantiate service executor: " + e.getMessage(), e);
-		} 
-        catch (IllegalAccessException e)
-		{
-        	throw new ServiceException("Failed to instantiate service executor: " + e.getMessage(), e);
-		} 
-        catch (InvocationTargetException e)
-		{
-        	throw new ServiceException("Failed to instantiate service executor: " + e.getMessage(), e);
-		} 
-        catch (SecurityException e)
-		{
-        	throw new ServiceException("Failed to instantiate service executor: " + e.getMessage(), e);
-		} 
-        catch (NoSuchMethodException e)
-		{
-        	throw new ServiceException("Failed to instantiate service executor: " + e.getMessage(), e);
-		}
+	private void initialize() {
+		context = createApplicationcontext(serviceConfig, servicePackages);
 	}
 
 }

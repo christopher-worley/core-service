@@ -3,13 +3,11 @@ package core.service.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import core.service.factory.DefaultServiceFactory;
 import core.service.plugin.ServicePlugin;
 
-public class DefaultServiceConfig implements ServiceConfig<DefaultServiceFactory> {
-	
-	/** using default service factory until there is reason to make the type optional */
-	private DefaultServiceFactory serviceFactory;
+
+public class DefaultServiceConfig implements ServiceConfig {
+
 	
 	/** service plugins to invoke before service is executed */
 	private List<ServicePlugin> plugins;
@@ -17,10 +15,9 @@ public class DefaultServiceConfig implements ServiceConfig<DefaultServiceFactory
 	/**
 	 * Default constructor
 	 * 
-	 * Construct configuration instance with default service factory.
+	 * Construct configuration with empty list of plugins. 
 	 */
 	public DefaultServiceConfig() {
-		serviceFactory = new DefaultServiceFactory();
 		plugins = new ArrayList<ServicePlugin>();		
 	}
 
@@ -29,10 +26,5 @@ public class DefaultServiceConfig implements ServiceConfig<DefaultServiceFactory
 		return plugins;
 	}
 
-
-	@Override
-	public DefaultServiceFactory getServiceFactory() {
-		return serviceFactory;
-	}
 
 }

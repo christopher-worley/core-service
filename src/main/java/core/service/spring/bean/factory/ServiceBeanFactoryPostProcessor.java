@@ -12,9 +12,8 @@ import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueH
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import core.service.annotation.Service;
-import core.service.config.ServiceProperties;
-import core.service.exception.ServiceException;
 import core.service.executor.local.CoreServiceExecutor;
+import core.service.factory.ServiceFactory;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
@@ -54,16 +53,16 @@ public class ServiceBeanFactoryPostProcessor implements BeanFactoryPostProcessor
 	 */
 	private AnnotationConfigApplicationContext context;
 	
-	private ServiceProperties serviceProperties;
+	private ServiceFactory serviceFactory;
 	
 	/**
 	 * Default constructor 
 	 */
-	public ServiceBeanFactoryPostProcessor(ServiceProperties serviceProperties, AnnotationConfigApplicationContext context)
+	public ServiceBeanFactoryPostProcessor(ServiceFactory serviceFactory, AnnotationConfigApplicationContext context)
 	{
 		super();
 		this.context = context;
-		this.serviceProperties = serviceProperties;
+		this.serviceFactory = serviceFactory;
 	}
 
 	/**
@@ -197,19 +196,22 @@ public class ServiceBeanFactoryPostProcessor implements BeanFactoryPostProcessor
 			// NOTE: Not sure how to do this with the BeanFactory.  Would rather not use the context if possible.
 			context.registerBeanDefinition(beanName, beanDefinition);
 			
-			// add to service config interface and implementing class pairs
-			try
-			{
-				serviceProperties.addInterfaceImpl(getServiceInterface(beanDefinition), getServiceImplementation(beanDefinition));
-			} 
-			catch (ClassNotFoundException e)
-			{
-				throw new ServiceException("Cannot determine either service interface or implementation class from bean definition (beanName=" + beanName + ").");
-			}
+			// NOTE: don't think we need to keep interface / impl pairs in the factory.  since now the actory has the context which can get the information
+//			// add to service config interface and implementing class pairs
+//			try
+//			{
+//				// assuming default service factory
+//				DefaultServiceFactory factory = (DefaultServiceFactory) serviceConfig.getServiceFactory();
+//				factory.addService(getServiceInterface(beanDefinition), getServiceImplementation(beanDefinition));
+//			} 
+//			catch (ClassNotFoundException e)
+//			{
+//				throw new ServiceException("Cannot determine either service interface or implementation class from bean definition (beanName=" + beanName + ").");
+//			}
 		}
 
 		// add service properties to bean factory
-		beanFactory.registerSingleton("serviceProperties", serviceProperties);
+		beanFactory.registerSingleton("serviceFactory", serviceFactory);
 	}
 
 }

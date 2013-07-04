@@ -27,6 +27,7 @@ import core.service.bus.ServiceRequestResponse;
 import core.service.bus.ServiceRequestResponseImpl;
 import core.service.config.DefaultServiceConfig;
 import core.service.executor.local.CoreServiceExecutor;
+import core.service.factory.DefaultServiceFactory;
 import core.service.result.ServiceResult;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
@@ -51,7 +52,7 @@ public class InvokeServiceThread implements Runnable
     @Override
     public void run()
     {
-        CoreServiceExecutor executor = new CoreServiceExecutor(request.getClass(), new DefaultServiceConfig());
+        CoreServiceExecutor executor = new CoreServiceExecutor(request.getClass(), new DefaultServiceFactory());
         
         try
         {

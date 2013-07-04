@@ -3,10 +3,16 @@ package core.service.factory;
 import java.util.HashMap;
 import java.util.Map;
 
+import core.service.config.DefaultServiceConfig;
+import core.service.config.ServiceConfig;
 import core.service.exception.ServiceException;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;
 
+/**
+ * @author cworley
+ *
+ */
 public class DefaultServiceFactory implements ServiceFactory {
 	
 	/** logger for this class */
@@ -15,17 +21,26 @@ public class DefaultServiceFactory implements ServiceFactory {
 	/** registered services for this factory instance */
 	private Map<Class, Class> services;
 	
-	
+	/** service configuration for this factory */
+	private ServiceConfig serviceConfig;
 
 	/**
-	 * Default constructor for factory.
+	 * construct factory with given service configuration.
 	 * 
 	 * Construct factory instance with empty service register map.
 	 * 
 	 */
-	public DefaultServiceFactory() {
+	public DefaultServiceFactory(ServiceConfig serviceConfig) {
 		super();
 		services = new HashMap<Class, Class>();
+		this.serviceConfig = serviceConfig;
+	}
+
+	/**
+	 * Default constructor for factory.
+	 */
+	public DefaultServiceFactory() {
+		this(new DefaultServiceConfig());
 	}
 
 	/**
@@ -72,6 +87,13 @@ public class DefaultServiceFactory implements ServiceFactory {
 		}
 		
 		return instance;
+	}
+
+	/* (non-Javadoc)
+	 * @see core.service.factory.ServiceFactory#getServiceConfig()
+	 */
+	public ServiceConfig getServiceConfig() {
+		return serviceConfig;
 	}
 
 	/**

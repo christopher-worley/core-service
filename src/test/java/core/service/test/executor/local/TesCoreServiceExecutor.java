@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import core.service.config.DefaultServiceConfig;
 import core.service.exception.ServiceException;
 import core.service.executor.local.CoreServiceExecutor;
+import core.service.factory.DefaultServiceFactory;
 import core.service.plugin.AnnotatedValidationPlugin;
 import core.service.test.mock.MathService;
 import core.service.test.mock.MathServiceImpl;
@@ -65,9 +66,11 @@ public class TesCoreServiceExecutor
     public void textExecute_default() throws SecurityException, NoSuchMethodException
     {
     	DefaultServiceConfig serviceConfig = new DefaultServiceConfig();
-    	serviceConfig.getServiceFactory().addService(MathService.class, MathServiceImpl.class);
     	
-    	CoreServiceExecutor executor = new CoreServiceExecutor(MathService.class, serviceConfig);
+    	DefaultServiceFactory serviceFactory = new DefaultServiceFactory(serviceConfig);
+    	serviceFactory.addService(MathService.class, MathServiceImpl.class);
+    	
+    	CoreServiceExecutor executor = new CoreServiceExecutor(MathService.class, serviceFactory);
     	
     	MathService mathService = (MathService) java.lang.reflect.Proxy.newProxyInstance(
     			MathService.class.getClassLoader(),
@@ -83,10 +86,13 @@ public class TesCoreServiceExecutor
     public void testExecutor_plugin() 
     {
     	DefaultServiceConfig serviceConfig = new DefaultServiceConfig();
-    	serviceConfig.getServiceFactory().addService(MathService.class, MathServiceImpl.class);
     	serviceConfig.getServicePlugins().add(new AnnotatedValidationPlugin());
     	
-    	CoreServiceExecutor executor = new CoreServiceExecutor(MathService.class, serviceConfig);
+    	DefaultServiceFactory serviceFactory = new DefaultServiceFactory(serviceConfig);
+    	serviceFactory.addService(MathService.class, MathServiceImpl.class);
+
+    	
+    	CoreServiceExecutor executor = new CoreServiceExecutor(MathService.class, serviceFactory);
     	
     	MathService mathService = (MathService) java.lang.reflect.Proxy.newProxyInstance(
     			MathService.class.getClassLoader(),
@@ -101,10 +107,12 @@ public class TesCoreServiceExecutor
     public void testExecutor_pluginFail() 
     {
     	DefaultServiceConfig serviceConfig = new DefaultServiceConfig();
-    	serviceConfig.getServiceFactory().addService(MathService.class, MathServiceImpl.class);
     	serviceConfig.getServicePlugins().add(new AnnotatedValidationPlugin());
     	
-    	CoreServiceExecutor executor = new CoreServiceExecutor(MathService.class, serviceConfig);
+    	DefaultServiceFactory serviceFactory = new DefaultServiceFactory(serviceConfig);
+    	serviceFactory.addService(MathService.class, MathServiceImpl.class);
+    	
+    	CoreServiceExecutor executor = new CoreServiceExecutor(MathService.class, serviceFactory);
     	
     	MathService mathService = (MathService) java.lang.reflect.Proxy.newProxyInstance(
     			MathService.class.getClassLoader(),

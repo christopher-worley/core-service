@@ -55,21 +55,20 @@ public class CoreServiceExecutor implements InvocationHandler
     /** service interface */
     private Class serviceInterface;
     
-    /** service configuration */
-    private ServiceConfig<ServiceFactory> serviceConfig;
+    /** service factory */
+    private ServiceFactory serviceFactory;
     
     /**
      * Executor constructor for service interface
      * 
      * Create instance for the service interface and configuration.
      * 
-     * @param domain
      */
-    public CoreServiceExecutor(Class serviceInterface, ServiceConfig serviceConfig)
+    public CoreServiceExecutor(Class serviceInterface, ServiceFactory serviceFactory)
     {
         super();
         this.serviceInterface = serviceInterface;
-        this.serviceConfig = serviceConfig;
+        this.serviceFactory = serviceFactory;
     }
 
     /**
@@ -130,7 +129,7 @@ public class CoreServiceExecutor implements InvocationHandler
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
 		// get instance of service from the configured factory
-		Object serviceObject = serviceConfig.getServiceFactory().createService(serviceInterface);
+		Object serviceObject = serviceFactory.createService(serviceInterface);
 		
 		Class[] paramTypes = new Class[args.length];
 		for(int index = 0; index < args.length; index++) {
@@ -160,7 +159,7 @@ public class CoreServiceExecutor implements InvocationHandler
 	 */
 	private void afterExecution(Object serviceObject, Method method,
 			Class[] paramTypes, Object[] args) {
-		for (ServicePlugin plugin : serviceConfig.getServicePlugins()) {
+		for (ServicePlugin plugin : serviceFactory.getServiceConfig().getServicePlugins()) {
 			plugin.after(serviceObject, method, paramTypes, args);
 		}
 	}
@@ -175,7 +174,7 @@ public class CoreServiceExecutor implements InvocationHandler
 	 */
 	private void beforeExecution(Object serviceObject, Method method,
 			Class[] paramTypes, Object[] args) {
-		for (ServicePlugin plugin : serviceConfig.getServicePlugins()) {
+		for (ServicePlugin plugin : serviceFactory.getServiceConfig().getServicePlugins()) {
 			plugin.before(serviceObject, method, paramTypes, args);
 		}
 	}

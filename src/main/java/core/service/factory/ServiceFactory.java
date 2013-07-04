@@ -19,6 +19,8 @@
  * <http://www.gnu.org/licenses/>.
  */package core.service.factory;
 
+import core.service.config.ServiceConfig;
+
 
 /**
  * Factory for creating services.  
@@ -42,6 +44,17 @@ public interface ServiceFactory
      * @return
      */
 	public Object createService(Class serviceInterface);
+	
+	/**
+	 * Service configuration for this factory
+	 * 
+	 * When a factory is created configuration can be applied.  It is expected that
+	 * the executor and other components of the service framework using this factory
+	 * will respect the configuration details.
+	 * 
+	 * @return
+	 */
+	public ServiceConfig getServiceConfig();
 
     
 }

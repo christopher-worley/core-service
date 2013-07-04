@@ -15,7 +15,6 @@ import core.service.executor.mina.MinaExecutorServer;
 import core.service.result.ServiceResult;
 import core.service.security.SecurityEntity;
 import core.service.session.ClientServiceSession;
-import core.service.spring.context.ApplicationContextFactory;
 import core.service.test.mock.Applicant;
 import core.service.test.mock.Application;
 import core.service.test.mock.MockPermission;
