@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import core.service.config.ServiceConfig;
 import core.service.factory.ServiceFactory;
 import core.service.security.SecurityEntity;
 import core.tooling.logging.LogFactory;
@@ -53,6 +54,11 @@ public class ClientServiceSessionImpl implements ClientServiceSession, Applicati
 	public SecurityEntity getSecurityEntity()
 	{
 		return entity;
+	}
+
+	@Override
+	public ServiceConfig getServiceConfig() {
+		return serviceFactory.getServiceConfig();
 	}
 
 	private ServiceFactory getServiceFactory()

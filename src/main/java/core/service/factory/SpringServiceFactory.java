@@ -6,7 +6,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import core.service.config.ServiceConfig;
 import core.service.executor.local.CoreServiceExecutor;
 import core.service.spring.bean.factory.ServiceBeanFactoryPostProcessor;
-import core.service.test.mock.MathService;
 import core.service.util.ServiceUtil;
 import core.tooling.logging.LogFactory;
 import core.tooling.logging.Logger;

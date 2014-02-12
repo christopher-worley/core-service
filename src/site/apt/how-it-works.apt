@@ -88,7 +88,7 @@ MathService mathService = (MathService) serviceFactory.createService(MathService
 
 	Before discussing the insides of the Service Framework, its probably easier to understand the usage by seeing it in action with in the CommonApp Framework.
 	
-	The RoldoexDemo which demonstrates Core ETL was also built on the CommonApp Framework to avoid having to build a data model, DAOs and services to create contact information.  Which is exactly why the CommonApp Framework was created.  
+	The RoldoexDemo which demonstrates Core ETL was also built on the CommonApp Framework to avoid having to build a data model, Daos and services to create contact information.  Which is exactly why the CommonApp Framework was created.  
 
 	In the CommonApp Framework the InformationContext object is used to create services, it pulls together Spring's ApplicationContext and the Service Framework's ServiceFactory.  The InformationCotext is not a singletone incase you need to create multiple instances within one jvm.  However, in most cases you only need one instance.  The Rolodex Demo creates a static instance in RolodexMain and provides a public getter for other classes to access the instance.
 	
@@ -118,7 +118,7 @@ public class RolodexMain
 }
 -------------------------------------------------------
 
-	The InformationContext loads a number of spring context xml files that are in the commonApp-server project.  If you wish to expand on the InformationContext and provide more data models, DAOs or services you'll need to use the constructor as seen above to include your context configuration.  By default the CommonApp Framwork will use a database named 'core', if you wish to override that you'll need to provide your own in any case.  This is discussed more in the CommonApp Framework documentation.
+	The InformationContext loads a number of spring context xml files that are in the commonApp-server project.  If you wish to expand on the InformationContext and provide more data models, Daos or services you'll need to use the constructor as seen above to include your context configuration.  By default the CommonApp Framwork will use a database named 'core', if you wish to override that you'll need to provide your own in any case.  This is discussed more in the CommonApp Framework documentation.
 	
 	If you look at the rolodex-server-context.xml you'll see it sets up its own data soruce for the rolodex database.  Along with including the common app context files, it includes, 'rolodex-context.xml', which contains objects specific to this application.   
 		
